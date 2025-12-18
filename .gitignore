@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+build/
+.out/
+
+# env
+.env
+.env.*
+!.env.example
+
+# turborepo
+.turbo/
+
+# logs
+*.log
+
+# OS
+.DS_Store
