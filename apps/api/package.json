@@ -9,12 +9,14 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
-
 	"scripts": {
 		"test": "jest",
 		"dev": "nodemon index.js"
 	},
 	"keywords": [],
 	"author": "vicdevman",
-	"license": "ISC"
+	"license": "ISC",
+	"devDependencies": {
+		"prisma": "^7.2.0"
+	}
 }
