@@ -17,6 +17,11 @@ const serverUrl = process.env.SERVER_URL;
 //bot setup
 const bot = new TelegramBot(token, { polling: false });
 bot.setWebHook(`${serverUrl}/bot`);
+bot.setMyCommands([
+  { command: 'start', description: 'Start the bot' },
+  { command: 'help', description: 'Get help' },
+  { command: 'track', description: 'track a new wallet' },
+])
 
 
 //events

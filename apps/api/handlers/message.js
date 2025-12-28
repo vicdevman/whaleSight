@@ -2,7 +2,7 @@ export default function registerMessageHandler(bot) {
   const commands = ["start", "help", "track", "lookup", "list", "remove"];
 
   bot.on("message", (msg) => {
-    if (msg && msg.text.startsWith("/")) {
+    if (msg && msg.text[0] === '/') {
       const command = msg.text.split("/");
       console.log(command[1]);
 
