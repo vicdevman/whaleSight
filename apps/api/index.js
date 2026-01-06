@@ -1,8 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
 import TelegramBot from "node-telegram-bot-api";
-import { registerAllCommands } from './commands/index.js';
-import { registerAllHandlers } from './handlers/index.js'
+import { registerAllCommands } from "./commands/index.js";
+import { registerAllHandlers } from "./handlers/index.js";
+
 
 dotenv.config();
 const app = express();
@@ -15,14 +16,23 @@ const PORT = process.env.PORT;
 const serverUrl = process.env.SERVER_URL;
 
 //bot setup
-const bot = new TelegramBot(token, { polling: false });
+export const bot = new TelegramBot(token, { polling: false });
 bot.setWebHook(`${serverUrl}/bot`);
 bot.setMyCommands([
-  { command: 'start', description: 'Start the bot' },
-  { command: 'help', description: 'Get help' },
-  { command: 'track', description: 'track a new wallet' },
-])
-
+  { command: "help", description: "Get all commands" },
+  {
+    command: "track",
+    description:
+      "Monitor a wallet and receive alerts when new transactions occur",
+  },
+  {
+    command: "scan",
+    description:
+      "Analyze any wallet and get a full breakdown of its activity, token holdings, and risk insights",
+  },
+  { command: "list", description: "Get all tracked wallets" },
+  { command: "remove", description: "Remove a wallet from tracked list" },
+]);
 
 //events
 registerAllCommands(bot);
