@@ -31,7 +31,7 @@ Let's track some whales! 📈`;
         "INSERT INTO users(chat_id, username, first_name) VALUES ($1, $2, $3)",
         [chatId, username, firstName]
       );
-      console.log("User Saved:", res.rows[0]);
+      console.log("User Saved:", res);
     } else {
       console.log("Found user:", user);
     }

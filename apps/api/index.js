@@ -67,7 +67,7 @@ app.post(`/bot`, (req, res) => {
 });
 
 app.post('/transaction', (req, res) => {
-console.log(req.body)
+console.log(JSON.stringify(req.body, null, 2))
 })
 
 app.listen(PORT, () => {
@@ -76,3 +76,11 @@ app.listen(PORT, () => {
 
 // Export the Express app as the default export
 export default app;
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});

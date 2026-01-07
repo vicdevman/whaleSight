@@ -12,7 +12,10 @@ export const db = new Pool({
 
 db.on('error', (err) => {
   console.error('Unexpected error on idle client', err);
-  process.exit(1); // Exit the process to avoid undefined behavior
+  // Attempt to reconnect instead of exiting the process
+  setTimeout(() => {
+    testConnection();
+  }, 5000); // Retry after 5 seconds
 });
 
 async function testConnection() {
