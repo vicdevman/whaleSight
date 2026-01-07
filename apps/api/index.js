@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import TelegramBot from "node-telegram-bot-api";
 import { registerAllCommands } from "./commands/index.js";
 import { registerAllHandlers } from "./handlers/index.js";
+import { client } from "./db/cache.js";
 
 
 dotenv.config();
@@ -14,6 +15,11 @@ app.use(express.json());
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const PORT = process.env.PORT;
 const serverUrl = process.env.SERVER_URL;
+
+//test
+// await client.set('foo', 'bar');
+// const result = await client.get('foo');
+// console.log(result)  // >>> bar 
 
 //bot setup
 export const bot = new TelegramBot(token, { polling: false });
@@ -59,6 +65,10 @@ app.post(`/bot`, (req, res) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
 });
+
+app.post('/transaction', (req, res) => {
+console.log(req.body)
+})
 
 app.listen(PORT, () => {
   console.log(`Bot running on http://127.0.0.1:${PORT}`);

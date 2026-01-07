@@ -11,8 +11,7 @@ export default function registerTrack(bot) {
 
     bot.sendMessage(
       msg.chat.id,
-      "What do you want to track? (WE ONLY SUPPORT SOLANA)",
-      { reply_markup: buttons }
+      "Send the Solana wallet address you want to track"
     );
   });
 }
