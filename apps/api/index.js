@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import TelegramBot from "node-telegram-bot-api";
 import { registerAllCommands } from "./commands/index.js";
 import { registerAllHandlers } from "./handlers/index.js";
-import { client } from "./db/cache.js";
+import { redis } from "./db/cache.js";
 
 
 dotenv.config();
-const app = express();
+const app = express(); 
 
 //middlewares
 app.use(express.json());
@@ -17,8 +17,8 @@ const PORT = process.env.PORT;
 const serverUrl = process.env.SERVER_URL;
 
 //test
-// await client.set('foo', 'bar');
-// const result = await client.get('foo');
+// await redis.set('foo', 'bar');
+// const result = await redis.get('foo');
 // console.log(result)  // >>> bar 
 
 //bot setup
@@ -68,6 +68,8 @@ app.post(`/bot`, (req, res) => {
 
 app.post('/transaction', (req, res) => {
 console.log(JSON.stringify(req.body, null, 2))
+
+
 })
 
 app.listen(PORT, () => {

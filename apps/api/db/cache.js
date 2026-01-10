@@ -1,6 +1,6 @@
 import { createClient } from 'redis';
 
-export const client = createClient({
+export const redis = createClient({
     username: 'default',
     password: '1417Ta5VkhdxugVTSS8VPdM2GtNulgjH',
     socket: {
@@ -9,12 +9,12 @@ export const client = createClient({
     }
 });
 
-client.on('error', (err) => {
+redis.on('error', (err) => {
   console.error('Redis Client Error', err);
   // Attempt to reconnect
   setTimeout(async () => {
     try {
-      await client.connect();
+      await redis.connect();
       console.log('Redis reconnected successfully');
     } catch (reconnectErr) {
       console.error('Redis reconnection failed', reconnectErr);
@@ -22,7 +22,7 @@ client.on('error', (err) => {
   }, 5000); // Retry after 5 seconds
 });
 
-await client.connect();
+await redis.connect();
 
 
 
