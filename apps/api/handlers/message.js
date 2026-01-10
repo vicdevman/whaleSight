@@ -23,13 +23,13 @@ export default function registerMessageHandler(bot) {
       const checkIfAddressExist = trackedWallets.rows.find(wallet => wallet.wallet_address == msg.text)
 
       if (checkIfAddressExist) {
-         bot.sendMessage(
+         await bot.sendMessage(
           chatId,
           `solana address already exist and is labelled as ${checkIfAddressExist.label}, please enter a different wallet address`,
           {reply_markup: buttons}
         );
       } else if (isValid) {
-        bot.sendMessage(
+        await bot.sendMessage(
           chatId,
           `Great! now please send a label, nickname to call the address`
         );
@@ -39,7 +39,7 @@ export default function registerMessageHandler(bot) {
           address: msg.text,
         });
       } else {
-        bot.sendMessage(
+        await bot.sendMessage(
           chatId,
           `Invalid Solana address, please send a valid solana address`
         );
@@ -48,7 +48,7 @@ export default function registerMessageHandler(bot) {
     }
 
     if (state && state.step == "AWAITING_LABEL") {
-      bot.sendMessage(
+      await bot.sendMessage(
         chatId,
         `Wallet tracked successfully! use /list to see all tracked wallets and /remove to remove a tracked wallet. enjoy!`
       );
@@ -63,13 +63,13 @@ export default function registerMessageHandler(bot) {
       return;
     }
 
-    bot.deleteMessage(chatId, msg.message_id);
+    await bot.deleteMessage(chatId, msg.message_id);
     if (msg && msg.text[0] === "/") {
       const command = msg.text.split("/");
       console.log(command[1]);
 
       if (!commands.includes(command[1])) {
-        bot.sendMessage(
+        await bot.sendMessage(
           chatId,
           "That command doesn't exist 😅 Type /help to see what I can do."
         );
@@ -78,7 +78,7 @@ export default function registerMessageHandler(bot) {
       return;
     }
 
-    bot.sendMessage(chatId, `received message! you said ${msg.text}`);
+    await bot.sendMessage(chatId, `received message! you said ${msg.text}`);
     console.log(msg);
   });
 }

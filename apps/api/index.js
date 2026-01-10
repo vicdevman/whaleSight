@@ -71,9 +71,44 @@ app.get("/", (req, res) => {
 });
 
 //webhook
-app.post(`/bot`, (req, res) => {
-  bot.processUpdate(req.body);
-  res.sendStatus(200);
+app.post(`/bot`, async (req, res) => {
+  // Gracefully handle the update, waiting for async handlers to complete
+  try {
+    const promises = [];
+    const originalEmit = bot.emit.bind(bot);
+
+    // Patch emit to capture promises from listeners
+    bot.emit = (event, ...args) => {
+      const listeners = bot.listeners(event);
+      for (const listener of listeners) {
+         // Execute listener and capture result if it's a promise
+         const result = listener.apply(bot, args);
+         if (result && result instanceof Promise) {
+           promises.push(result);
+         }
+      }
+      // We don't call originalEmit because we just manually called the listeners.
+      // Calling originalEmit would call them again.
+      // However, internal events might need originalEmit. 
+      // Safe approach: Restore and then call? No.
+      // Standard node-telegram-bot-api doesn't expect emit to return promises.
+      // We manually executing listeners is the safest way to capture them.
+      return true; 
+    };
+
+    bot.processUpdate(req.body);
+
+    // Restore emit immediately after sync processing
+    bot.emit = originalEmit;
+
+    // Wait for all async handlers to finish
+    await Promise.all(promises);
+    
+    res.sendStatus(200);
+  } catch (error) {
+    console.error("Error processing update:", error);
+    res.sendStatus(500);
+  }
 });
 
 app.post('/transaction', (req, res) => {
