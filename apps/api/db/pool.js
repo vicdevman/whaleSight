@@ -8,7 +8,7 @@ neonConfig.webSocketConstructor = ws;
 export const db = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: true,
-  max: 10, // Limit to 1 connection per serverless instance to prevent connection exhaustion
+  max: 1, // Limit to 1 connection per serverless instance to prevent connection exhaustion
   connectionTimeoutMillis: 10000, 
 });
 
