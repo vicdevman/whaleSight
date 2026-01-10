@@ -1,15 +1,15 @@
-import pkg from "pg";
-const { Pool } = pkg;
-import 'dotenv/config'
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import ws from 'ws';
+import 'dotenv/config';
+
+// Required for Neon serverless driver to work in non-browser environments (like Node.js)
+neonConfig.webSocketConstructor = ws;
 
 export const db = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-  max: 10, // Limit each serverless function to 1 connection
-  idleTimeoutMillis: 30000, 
-  connectionTimeoutMillis: 10000, // Wait up to 10s for connection
+  ssl: true,
+  max: 10, // Limit to 1 connection per serverless instance to prevent connection exhaustion
+  connectionTimeoutMillis: 10000, 
 });
 
 db.on('error', (err) => {
@@ -20,7 +20,7 @@ async function testConnection() {
   let client;
   try {
     client = await db.connect();
-    console.log(`DATABASE CONNECTED !!!`);
+    console.log(`DATABASE CONNECTED (Neon) !!!`);
   } catch (err) {
     console.error("❌ DB connection failed:", err);
   } finally {
