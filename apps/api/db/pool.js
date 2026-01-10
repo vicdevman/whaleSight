@@ -7,8 +7,9 @@ export const db = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-  idleTimeoutMillis: 30000, // Close idle connections after 30 seconds
-  connectionTimeoutMillis: 5000, // Timeout after 5 seconds if connection cannot be established
+  max: 10, // Limit each serverless function to 1 connection
+  idleTimeoutMillis: 30000, 
+  connectionTimeoutMillis: 10000, // Wait up to 10s for connection
 });
 
 db.on('error', (err) => {
