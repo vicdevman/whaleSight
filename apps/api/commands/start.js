@@ -11,10 +11,10 @@ export default function registerStart(bot) {
 I'm your crypto wallet tracking bot. I help you monitor whale movements, analyze wallet activity, and stay updated on blockchain transactions.
 
 <b>Quick Start:</b>
-• Use /track to monitor a wallet for new transactions
-• Use /scan to analyze any wallet's activity and holdings  
-• Use /list to see your tracked wallets
-• Use /help for the full command list
+• Use <b>/track</b> to monitor a wallet for new transactions
+• Use <b>/scan</b> to analyze any wallet's activity and holdings
+• Use <b>/list</b> to see your tracked wallets
+• Use <b>/help</b> for the full command list
 
 Let's track some whales! 📈`;
 

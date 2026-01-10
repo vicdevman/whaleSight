@@ -8,6 +8,16 @@ export default function registerList(bot) {
       "SELECT * from tracked_wallets WHERE user_chat_id=$1",
       [chatId]
     );
+
+    if (trackedWallets.rows.length === 0) {
+      await bot.sendMessage(
+        chatId,
+        "You are not tracking any wallets yet.\nUse /track to start tracking a wallet.",
+        { parse_mode: "Markdown" }
+      );
+      return;
+    }
+    
     const wallets = trackedWallets.rows.map((wallet) => {
       return `
 🐳 *${wallet.label || "Unnamed Wallet"}*
