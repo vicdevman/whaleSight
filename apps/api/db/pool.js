@@ -1,32 +1,39 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import ws from 'ws';
+import { neon } from '@neondatabase/serverless';
 import 'dotenv/config';
 
-// Required for Neon serverless driver to work in non-browser environments (like Node.js)
-neonConfig.webSocketConstructor = ws;
+const sql = neon(process.env.DATABASE_URL);
 
-export const db = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true,
-  max: 1, // Limit to 1 connection per serverless instance to prevent connection exhaustion
-  connectionTimeoutMillis: 10000, 
-});
-
-db.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-});
+export const db = {
+  async query(text, params) {
+    try {
+      const result = await sql.query(text, params || []); 
+ 
+      return {
+        rows: result,
+        rowCount: result.length,
+      };
+    } catch (error) {
+      console.error('Database Query Error:', error);
+      throw error;
+    }
+  },
+ 
+  // Mock connect() for any legacy calls
+  async connect() {
+    return {
+      query: (text, params) => this.query(text, params),
+      release: () => {}, 
+    };
+  },
+  on: () => {}, 
+};
 
 async function testConnection() {
-  let client;
   try {
-    client = await db.connect();
-    console.log(`DATABASE CONNECTED (Neon) !!!`);
+    const res = await sql`SELECT version()`;
+    console.log(`DATABASE CONNECTED (Neon HTTP) !!! Version: ${res[0].version}`);
   } catch (err) {
     console.error("❌ DB connection failed:", err);
-  } finally {
-    if (client) {
-        client.release();
-    }
   }
 }
 
