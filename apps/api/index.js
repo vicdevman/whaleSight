@@ -41,7 +41,7 @@ app.get("/setup", async (req, res) => {
         description: "Analyze any wallet and get a full breakdown of its activity, token holdings, and risk insights",
       },
       { command: "list", description: "Get all tracked wallets" },
-      { command: "remove", description: "Remove a wallet from tracked list" },
+      { command: "remove [WALLET_ADDRESS]", description: "Remove a wallet from tracked list" },
     ]);
     res.send("Webhook and commands set successfully!");
   } catch (error) {

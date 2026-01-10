@@ -41,7 +41,8 @@ export default function registerMessageHandler(bot) {
       } else {
         await bot.sendMessage(
           chatId,
-          `Invalid Solana address, please send a valid solana address`
+          `Invalid Solana address, please send a valid solana address`,
+          {reply_markup: buttons}
         );
       }
       return;
@@ -68,17 +69,17 @@ export default function registerMessageHandler(bot) {
       const command = msg.text.split("/");
       console.log(command[1]);
 
-      if (!commands.includes(command[1])) {
+      if (!commands.includes(command[1].split(" ")[0])) {
         await bot.sendMessage(
           chatId,
-          "That command doesn't exist 😅 Type /help to see what I can do."
+          "That command doesn't exist 😅\n Use /help to see what I can do."
         );
       }
 
       return;
     }
 
-    await bot.sendMessage(chatId, `received message! you said ${msg.text}`);
+    await bot.sendMessage(chatId, `Hi, what would you like to do? \n\n Use /help to see what I can do.`);
     console.log(msg);
   });
 }
