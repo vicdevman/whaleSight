@@ -22,23 +22,33 @@ const serverUrl = process.env.SERVER_URL;
 // console.log(result)  // >>> bar 
 
 //bot setup
+//bot setup
 export const bot = new TelegramBot(token, { polling: false });
-bot.setWebHook(`${serverUrl}/bot`);
-bot.setMyCommands([
-  { command: "help", description: "Get all commands" },
-  {
-    command: "track",
-    description:
-      "Monitor a wallet and receive alerts when new transactions occur",
-  },
-  {
-    command: "scan",
-    description:
-      "Analyze any wallet and get a full breakdown of its activity, token holdings, and risk insights",
-  },
-  { command: "list", description: "Get all tracked wallets" },
-  { command: "remove", description: "Remove a wallet from tracked list" },
-]);
+
+// Moved webhook/command setup to a specific route to prevent "socket hang up" errors
+// causing the function to crash on cold start.
+app.get("/setup", async (req, res) => {
+  try {
+    await bot.setWebHook(`${serverUrl}/bot`);
+    await bot.setMyCommands([
+      { command: "help", description: "Get all commands" },
+      {
+        command: "track",
+        description: "Monitor a wallet and receive alerts when new transactions occur",
+      },
+      {
+        command: "scan",
+        description: "Analyze any wallet and get a full breakdown of its activity, token holdings, and risk insights",
+      },
+      { command: "list", description: "Get all tracked wallets" },
+      { command: "remove", description: "Remove a wallet from tracked list" },
+    ]);
+    res.send("Webhook and commands set successfully!");
+  } catch (error) {
+    console.error("Setup failed:", error);
+    res.status(500).send(error.message);
+  }
+});
 
 //events
 registerAllCommands(bot);
