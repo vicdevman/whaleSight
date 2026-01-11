@@ -1,6 +1,7 @@
 import db from "../db/pool.js";
 
-export const handleStart = async (bot, msg) => {
+export default function registerStart(bot) {
+  bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
     const username = msg.chat.username;
     const firstName = msg.chat.first_name;
@@ -29,4 +30,5 @@ Let's track some whales! 📈`;
     } else {
       console.log("Found user:", user);
     }
-};
+  });
+}

@@ -1,15 +1,15 @@
-import { handleStart } from './start.js';
-import { handleHelp } from './help.js';
-import { handleTrack } from './track.js';
-import { handleScan } from './scan.js';
-import { handleList } from './list.js';
-import { handleRemove } from './remove.js';
+import registerStart from "./start.js";
+import registerHelp from "./help.js";
+import registerTrack from "./track.js";
+import registerScan from "./scan.js";
+import registerList from "./list.js";
+import registerRemove from "./remove.js";
 
-export const commandHandlers = {
-  '/start': handleStart,
-  '/help': handleHelp,
-  '/track': handleTrack,
-  '/scan': handleScan,
-  '/list': handleList,
-  '/remove': handleRemove
+export function registerAllCommands(bot) {
+  registerStart(bot);
+  registerHelp(bot);
+  registerTrack(bot);
+  registerScan(bot);
+  registerList(bot);
+  registerRemove(bot);
 };

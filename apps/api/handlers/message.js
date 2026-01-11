@@ -1,27 +1,12 @@
 import { getState, setState, clearState } from "../lib/conversationalState.js";
 import isValidSolanaAddress from "../utils/isValidSolanaAddress.js";
 import db from "../db/pool.js";
-import { commandHandlers } from "../commands/index.js";
 
 export default function registerMessageHandler(bot) {
+  const commands = ["start", "help", "track", "list", "remove", "scan"];
+
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
-
-    // Command handling
-    if (msg.text && msg.text[0] == "/") {
-        const [cmd] = msg.text.split(" ");
-        if (commandHandlers[cmd]) {
-            console.log(`Executing command: ${cmd}`);
-            await commandHandlers[cmd](bot, msg);
-            return;
-        } else {
-             await bot.sendMessage(
-                chatId,
-                "That command doesn't exist 😅\n Use /help to see what I can do."
-              );
-              return;
-        }
-    }
 
     const state = await getState(chatId);
     const buttons = {
@@ -70,6 +55,21 @@ export default function registerMessageHandler(bot) {
       await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${chatId}, ${state?.address}, ${"solana"}, ${msg.text})`;
 
       await clearState(chatId);
+      return;
+    }
+
+    await bot.deleteMessage(chatId, msg.message_id);
+    if (msg && msg.text[0] === "/") {
+      const command = msg.text.split("/");
+      console.log(command[1]);
+
+      if (!commands.includes(command[1].split(" ")[0])) {
+        await bot.sendMessage(
+          chatId,
+          "That command doesn't exist 😅\n Use /help to see what I can do."
+        );
+      }
+
       return;
     }
 

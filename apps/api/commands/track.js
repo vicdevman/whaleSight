@@ -1,7 +1,8 @@
 import { redis } from "../db/cache.js";
 import { setState } from "../lib/conversationalState.js";
 
-export const handleTrack = async (bot, msg) => {
+export default function registerTrack(bot) {
+  bot.onText(/\/track/, async (msg) => {
     const chatId = msg.chat.id;
 
     const buttons = {
@@ -18,4 +19,5 @@ export const handleTrack = async (bot, msg) => {
       step: 'AWAITING_ADDRESS',
       type: 'solana'
     })
-};
+  });
+}
