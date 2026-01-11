@@ -1,7 +1,6 @@
 import db from "../db/pool.js";
 
-export default function registerRemove(bot) {
-  bot.onText(/\/remove/, async (msg) => {
+export const handleRemove = async (bot, msg) => {
 
     const chatId = msg.chat.id;
     const trackedWallets = await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
@@ -30,6 +29,6 @@ export default function registerRemove(bot) {
     
     const res = await db`DELETE FROM tracked_wallets WHERE user_chat_id=${chatId} AND wallet_address=${address}`;
 
-    bot.sendMessage(chatId, "Wallet removed successfully!");
-  });
+    await bot.sendMessage(chatId, "Wallet removed successfully!");
+ 
 }

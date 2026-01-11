@@ -1,6 +1,4 @@
-export default function registerScan(bot) {
-  bot.onText(/\/scan/, (msg) => {
+export const handleScan = async (bot, msg) => {
 
     bot.sendMessage(msg.chat.id, 'this is to scan a wallet ')
-  });
-}
+};

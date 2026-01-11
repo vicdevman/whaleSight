@@ -1,5 +1,4 @@
-export default function registerHelp(bot) {
-  bot.onText(/\/help/, (msg) => {
+export const handleHelp = async (bot, msg) => {
     const commands = [
       { command: "help", description: "Get all commands" },
       { command: "track", description: "Monitor a wallet and receive alerts when new transactions occur" },
@@ -13,5 +12,4 @@ export default function registerHelp(bot) {
       .join("\n");
 
     bot.sendMessage(msg.chat.id, helpMessage, { parse_mode: "HTML" });
-  });
-}
+};

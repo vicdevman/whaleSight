@@ -1,7 +1,6 @@
 import db from "../db/pool.js";
 
-export default function registerList(bot) {
-  bot.onText(/\/list/, async (msg) => {
+export const handleList = async (bot, msg) => {
     const chatId = msg.chat.id;
 
     const trackedWallets = await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
@@ -26,5 +25,4 @@ export default function registerList(bot) {
     await bot.sendMessage(chatId, wallets.join("\n"), {
       parse_mode: "Markdown",
     });
-  });
-}
+};
