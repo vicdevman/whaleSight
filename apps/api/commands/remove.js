@@ -28,7 +28,7 @@ export default function registerRemove(bot) {
       return;
     }
     
-    const res = await db`DELETE FROM tracked_wallets WHERE user_chat_id=${chatId} AND wallet_address=${address}`;
+    await db`DELETE FROM tracked_wallets WHERE user_chat_id=${chatId} AND wallet_address=${address}`;
 
     await bot.sendMessage(chatId, "Wallet removed successfully!");
   });

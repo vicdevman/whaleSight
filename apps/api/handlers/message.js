@@ -66,14 +66,14 @@ export default function registerMessageHandler(bot) {
       if (!commands.includes(command[1].split(" ")[0])) {
         await bot.sendMessage(
           chatId,
-          "That command doesn't exist 😅\n Use /help to see what I can do."
+          "That command doesn't exist 😅\nUse /help to see what I can do."
         );
       }
 
       return;
     }
 
-    await bot.sendMessage(chatId, `Hi, what would you like to do? \n\n Use /help to see what I can do.`);
+    await bot.sendMessage(chatId, `Hi, what would you like to do? \n\nUse /help to see what I can do.`);
     console.log(msg);
   });
 }
