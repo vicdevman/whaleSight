@@ -1,6 +1,6 @@
 import { getState, setState, clearState } from "../lib/conversationalState.js";
 import isValidSolanaAddress from "../utils/isValidSolanaAddress.js";
-import { db } from "../db/pool.js";
+import db from "../db/pool.js";
 
 export default function registerMessageHandler(bot) {
   const commands = ["start", "help", "track", "list", "remove", "scan"];
@@ -15,12 +15,9 @@ export default function registerMessageHandler(bot) {
 
     if (state && state.step == "AWAITING_ADDRESS") {
       const isValid = await isValidSolanaAddress(msg.text);
-      const trackedWallets = await db.query(
-        "SELECT * from tracked_wallets WHERE user_chat_id=$1",
-        [chatId]
-      );
+      const trackedWallets = await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
 
-      const checkIfAddressExist = trackedWallets.rows.find(wallet => wallet.wallet_address == msg.text)
+      const checkIfAddressExist = trackedWallets.find(wallet => wallet.wallet_address == msg.text)
 
       if (checkIfAddressExist) {
          await bot.sendMessage(
@@ -55,10 +52,7 @@ export default function registerMessageHandler(bot) {
       );
       console.log(state?.address, msg.text);
 
-      await db.query(
-        "INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES ($1, $2, $3, $4)",
-        [chatId, state?.address, "solana", msg.text]
-      );
+      await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${chatId}, ${state?.address}, ${"solana"}, ${msg.text})`;
 
       await clearState(chatId);
       return;
