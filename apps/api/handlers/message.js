@@ -48,8 +48,7 @@ export default function registerMessageHandler(bot) {
         console.error("❌ Database error checking tracked wallets:", error);
         await bot.sendMessage(
           chatId,
-          "⚠️ Connection error. Please try again in a moment.",
-          {reply_markup: buttons}
+          "🔄 Having trouble connecting. Please start over:\n/track"
         );
       }
       return;
@@ -70,7 +69,7 @@ export default function registerMessageHandler(bot) {
         console.error("❌ Database error inserting tracked wallet:", error);
         await bot.sendMessage(
           chatId,
-          "⚠️ Connection error while saving wallet. Please try again."
+          "🔄 Having trouble saving your wallet. Please start over:\n/track"
         );
       }
       return;

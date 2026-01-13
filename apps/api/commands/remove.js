@@ -58,7 +58,7 @@ export default function registerRemove(bot) {
         console.error("❌ Database error fetching wallet list:", listError);
         await bot.sendMessage(
           chatId,
-          "⚠️ Connection error while fetching your wallets. Please try again in a moment."
+          "🔄 Having trouble connecting. Please try again:\n/remove " + address
         );
       }
       return;
@@ -79,7 +79,7 @@ export default function registerRemove(bot) {
     console.error("❌ Database error in remove command:", error);
     await bot.sendMessage(
       chatId,
-      "⚠️ Connection error. Please try again in a moment."
+      "🔄 Having trouble connecting. Please try again:\n/remove " + (address || "WALLET_ADDRESS")
     );
   }
 });

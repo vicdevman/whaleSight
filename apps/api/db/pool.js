@@ -1,13 +1,16 @@
 // src/config/db.js
 import { neon } from '@neondatabase/serverless';
+import { createRetryPool } from './retry.js';
 import 'dotenv/config';
 
-const pool = neon(process.env.DATABASE_URL, {
+const basePool = neon(process.env.DATABASE_URL, {
   fetchOptions: {
     timeout: 10000, // 10 second timeout to prevent hanging connections
   },
 });
 
+// Wrap pool with automatic retry logic for serverless environments
+const pool = createRetryPool(basePool);
 
 // Test connection
 (async () => {

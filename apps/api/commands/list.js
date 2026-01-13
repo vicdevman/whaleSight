@@ -34,7 +34,7 @@ export default function registerList(bot) {
       });
     } catch (error) {
       console.error("Error in /list command:", error);
-      await bot.sendMessage(chatId, "❌ Failed to retrieve your tracked wallets. Please try again later.");
+      await bot.sendMessage(chatId, "🔄 Having trouble connecting. Please try again:\n/list");
     }
   });
 }
