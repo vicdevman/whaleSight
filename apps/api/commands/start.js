@@ -21,14 +21,20 @@ Let's track some whales! 📈`;
     await bot.sendMessage(chatId, "Tracking Bot active!");
     await bot.sendMessage(chatId, welcomeMessage, { parse_mode: "HTML" });
 
-    const res = await db`SELECT * FROM users WHERE chat_id=${chatId}`;
+    try {
+      const res = await db`SELECT * FROM users WHERE chat_id=${chatId}`;
 
-    const user = res[0]; // get the first match
-    if (!user) {
-      const res = await db`INSERT INTO users(chat_id, username, first_name) VALUES (${chatId}, ${username}, ${firstName})`;
-      console.log("User Saved:", res);
-    } else {
-      console.log("Found user:", user);
+      const user = res[0]; // get the first match
+      if (!user) {
+        const res = await db`INSERT INTO users(chat_id, username, first_name) VALUES (${chatId}, ${username}, ${firstName})`;
+        console.log("User Saved:", res);
+      } else {
+        console.log("Found user:", user);
+      }
+    } catch (error) {
+      console.error("❌ Database error in start command:", error);
+      // Don't notify user since welcome message was already sent
+      // Just log the error for monitoring
     }
   });
 }

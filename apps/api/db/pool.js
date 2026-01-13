@@ -2,7 +2,11 @@
 import { neon } from '@neondatabase/serverless';
 import 'dotenv/config';
 
-const pool = neon(process.env.DATABASE_URL);
+const pool = neon(process.env.DATABASE_URL, {
+  fetchOptions: {
+    timeout: 10000, // 10 second timeout to prevent hanging connections
+  },
+});
 
 
 // Test connection
