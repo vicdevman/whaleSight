@@ -27,7 +27,7 @@ export default function registerList(bot) {
           return `🐳 *${wallet.label || "Unnamed Wallet"}*\n🔗 Chain: ${chain}\n💼 Wallet: \`${wallet.wallet_address}\`\n🕒 Added: ${date}\n`;
         })
         .join("\n");
-
+        
       await bot.sendMessage(chatId, message, {
         parse_mode: "Markdown",
         disable_web_page_preview: true,

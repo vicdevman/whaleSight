@@ -1,6 +1,7 @@
 import { getState, setState, clearState } from "../lib/conversationalState.js";
 import isValidSolanaAddress from "../utils/isValidSolanaAddress.js";
 import db from "../db/pool.js";
+import { updateWebhookAddresses } from "../services/helius.js";
 
 export default function registerMessageHandler(bot) {
   const commands = ["start", "help", "track", "list", "remove", "scan"];
@@ -15,17 +16,20 @@ export default function registerMessageHandler(bot) {
 
     if (state && state.step == "AWAITING_ADDRESS") {
       const isValid = await isValidSolanaAddress(msg.text);
-      
-      try {
-        const trackedWallets = await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
 
-        const checkIfAddressExist = trackedWallets.find(wallet => wallet.wallet_address == msg.text)
+      try {
+        const trackedWallets =
+          await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
+
+        const checkIfAddressExist = trackedWallets.find(
+          (wallet) => wallet.wallet_address == msg.text
+        );
 
         if (checkIfAddressExist) {
-           await bot.sendMessage(
+          await bot.sendMessage(
             chatId,
             `solana address already exist and is labelled as ${checkIfAddressExist.label}, please enter a different wallet address`,
-            {reply_markup: buttons}
+            { reply_markup: buttons }
           );
         } else if (isValid) {
           await bot.sendMessage(
@@ -41,7 +45,7 @@ export default function registerMessageHandler(bot) {
           await bot.sendMessage(
             chatId,
             `Invalid Solana address, please send a valid solana address`,
-            {reply_markup: buttons}
+            { reply_markup: buttons }
           );
         }
       } catch (error) {
@@ -56,8 +60,10 @@ export default function registerMessageHandler(bot) {
 
     if (state && state.step == "AWAITING_LABEL") {
       try {
-        await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${chatId}, ${state?.address}, ${"solana"}, ${msg.text})`;
-        
+        await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${chatId}, ${
+          state?.address
+        }, ${"solana"}, ${msg.text})`;
+
         await bot.sendMessage(
           chatId,
           `Wallet tracked successfully! use /list to see all tracked wallets and /remove to remove a tracked wallet. enjoy!`
@@ -65,6 +71,20 @@ export default function registerMessageHandler(bot) {
         console.log(state?.address, msg.text);
 
         await clearState(chatId);
+        // 5. Get all unique tracked wallets to update webhook
+        const remainingWallets =
+          await db`SELECT DISTINCT wallet_address FROM tracked_wallets`;
+
+        const walletAddresses = remainingWallets.map(
+          (row) => row.wallet_address
+        );
+        console.log("Remaining wallets for webhook update:", walletAddresses);
+
+        if (walletAddresses.length > 0) {
+          await updateWebhookAddresses(walletAddresses);
+        } else {
+          console.log("No wallets remaining, webhook update skipped");
+        }
       } catch (error) {
         console.error("❌ Database error inserting tracked wallet:", error);
         await bot.sendMessage(
@@ -90,7 +110,10 @@ export default function registerMessageHandler(bot) {
       return;
     }
 
-    await bot.sendMessage(chatId, `Hi, what would you like to do? \n\nUse /help to see what I can do.`);
+    await bot.sendMessage(
+      chatId,
+      `Hi, what would you like to do? \n\nUse /help to see what I can do.`
+    );
     console.log(msg);
   });
 }
