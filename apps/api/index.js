@@ -45,6 +45,7 @@ app.get("/setup", async (req, res) => {
 });
 
 app.get("/helius/setup", async (req, res) => {
+  await db`DELETE FROM webhooks WHERE webhook_name = 'helius'`;
   const response = await createWebhook();
 
   if (!response) {
