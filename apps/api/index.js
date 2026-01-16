@@ -96,7 +96,7 @@ app.post("/bot", (req, res) => {
 app.post('/transactions', async (req, res) => {
 
 const data = JSON.stringify(req.body, null, 2)
-console.log(data)
+console.log(data[0])
 
 const allAdresses = await db`SELECT wallet_address FROM tracked_wallets`;
 const formattedAdresses = allAdresses.map((row) => row.wallet_address);
