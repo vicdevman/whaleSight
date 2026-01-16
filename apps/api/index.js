@@ -7,6 +7,7 @@ import { createWebhook, updateWebhookAddresses } from "./services/helius.js";
 import db from "./db/pool.js";
 import parseHeliusSwap from "./utils/parseTransactionData.js";
 import { testParser } from "./utils/parseTransactionData.js";
+import sendTransaction from "./handlers/sendTransaction.js";
 
 
 dotenv.config();
@@ -103,7 +104,9 @@ const formattedAdresses = allAdresses.map((row) => row.wallet_address);
 
 const parsed = parseHeliusSwap(req.body[0], formattedAdresses)
 console.log('Parsed version: ----------------------------------------------------------------------', parsed)
-res.send("Transaction received")
+
+await sendTransaction(bot, parsed)
+res.send("Transaction received & Transaction sent")
 })
 
 app.listen(PORT, () => {
