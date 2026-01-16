@@ -14,6 +14,8 @@ export default async function sendTransaction(bot, data) {
     return;
   }
 
+  console.log('users:', userResults)
+
   for (const user of userResults) {
     const text = `🚨 *${action} Detected* 🚨\n\n` +
                  `*Wallet:* ${user.label}\n` +
