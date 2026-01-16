@@ -5,7 +5,7 @@ export default async function sendTransaction(bot, data) {
 const address = data.wallet;
 
 
-const userResults = await db`SELECT user_chat_id, label AS chat_id FROM tracked_wallets WHERE wallet_address=${address}`
+const userResults = await db`SELECT user_chat_id AS chat_id, label  FROM tracked_wallets WHERE wallet_address=${address}`
 
 if (userResults.length === 0) {
   console.log(`No users tracking wallet: ${address}`);
