@@ -16,7 +16,7 @@ export default async function sendTransaction(bot, data) {
 
   console.log('users:', userResults)
 
-  for (const user of userResults) {
+  userResults.forEach(user => {
     const text = `🚨 *${action} Detected* 🚨\n\n` +
                  `*Wallet:* ${user.label}\n` +
                  `*Address:* \`${address}\`\n` +
@@ -25,14 +25,14 @@ export default async function sendTransaction(bot, data) {
                  `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
 
     try {
-      await bot.sendMessage(user.chat_id, text, { parse_mode: 'Markdown' });
+       bot.sendMessage(user.chat_id, text, { parse_mode: 'Markdown' });
     } catch (error) {
       if (error.message.includes("bot was blocked by the user")) {
-        await db`DELETE FROM tracked_wallets WHERE user_chat_id = ${user.chat_id}`;
-        console.log(`User ${user.chat_id} blocked bot; removed from database.`);
+        // await db`DELETE FROM tracked_wallets WHERE user_chat_id = ${user.chat_id}`;
+        // console.log(`User ${user.chat_id} blocked bot; removed from database.`);
       } else {
         console.error(`Failed to notify ${user.chat_id}:`, error.message);
       }
     }
-  }
+  })
 }
