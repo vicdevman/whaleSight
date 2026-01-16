@@ -101,7 +101,7 @@ console.log(data)
 const allAdresses = await db`SELECT wallet_address FROM tracked_wallets`;
 const formattedAdresses = allAdresses.map((row) => row.wallet_address);
 
-const parsed = parseHeliusSwap(data, formattedAdresses)
+const parsed = parseHeliusSwap(data[0], formattedAdresses)
 console.log('Parsed version: ----------------------------------------------------------------------', parsed)
 res.send("Transaction received")
 })
