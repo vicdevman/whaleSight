@@ -96,12 +96,12 @@ app.post("/bot", (req, res) => {
 app.post('/transactions', async (req, res) => {
 
 const data = JSON.stringify(req.body, null, 2)
-console.log(data[0])
+console.log(data)
 
 const allAdresses = await db`SELECT wallet_address FROM tracked_wallets`;
 const formattedAdresses = allAdresses.map((row) => row.wallet_address);
 
-const parsed = parseHeliusSwap(data[0], formattedAdresses)
+const parsed = parseHeliusSwap(req.body[0], formattedAdresses)
 console.log('Parsed version: ----------------------------------------------------------------------', parsed)
 res.send("Transaction received")
 })
