@@ -5,8 +5,8 @@ import { registerAllCommands } from "./commands/index.js";
 import { registerAllHandlers } from "./handlers/index.js";
 import { createWebhook, updateWebhookAddresses } from "./services/helius.js";
 import db from "./db/pool.js";
-import parseHeliusData from "./utils/parseTransactionData.js";
-// import { testParser } from "./utils/parseTransactionData.js";
+import parseHeliusSwap from "./utils/parseTransactionData.js";
+import { testParser } from "./utils/parseTransactionData.js";
 
 
 dotenv.config();
@@ -101,7 +101,7 @@ console.log(data)
 const allAdresses = await db`SELECT wallet_address FROM tracked_wallets`;
 const formattedAdresses = allAdresses.map((row) => row.wallet_address);
 
-const parsed = parseHeliusData(req.body[0], formattedAdresses)
+const parsed = parseHeliusSwap(req.body[0], formattedAdresses)
 console.log('Parsed version: ----------------------------------------------------------------------', parsed)
 res.send("Transaction received")
 })
