@@ -14,18 +14,34 @@ export default async function sendTransaction(bot, data) {
     return;
   }
 
-  console.log('users:', userResults)
+  if (userResults.length == 1) {
+    console.log(`Single user tracking wallet: ${address}`);
+    const user = userResults[0];
+    const text =
+      `🚨 *${action} Detected* 🚨\n\n` +
+      `*Wallet:* ${user.label}\n` +
+      `*Address:* \`${address}\`\n` +
+      `*Amount:* ${tokenAmount.toLocaleString()} tokens\n` +
+      `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL\n\n` +
+      `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
 
-  userResults.forEach(user => {
-    const text = `🚨 *${action} Detected* 🚨\n\n` +
-                 `*Wallet:* ${user.label}\n` +
-                 `*Address:* \`${address}\`\n` +
-                 `*Amount:* ${tokenAmount.toLocaleString()} tokens\n` +
-                 `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL\n\n` +
-                 `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
+    bot.sendMessage(user.chat_id, text, { parse_mode: "Markdown" });
+    return;
+  }
+
+  console.log("users:", userResults);
+
+  userResults.forEach((user) => {
+    const text =
+      `🚨 *${action} Detected* 🚨\n\n` +
+      `*Wallet:* ${user.label}\n` +
+      `*Address:* \`${address}\`\n` +
+      `*Amount:* ${tokenAmount.toLocaleString()} tokens\n` +
+      `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL\n\n` +
+      `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
 
     try {
-       bot.sendMessage(user.chat_id, text, { parse_mode: 'Markdown' });
+      bot.sendMessage(user.chat_id, text, { parse_mode: "Markdown" });
     } catch (error) {
       if (error.message.includes("bot was blocked by the user")) {
         // await db`DELETE FROM tracked_wallets WHERE user_chat_id = ${user.chat_id}`;
@@ -34,5 +50,5 @@ export default async function sendTransaction(bot, data) {
         console.error(`Failed to notify ${user.chat_id}:`, error.message);
       }
     }
-  })
+  });
 }
