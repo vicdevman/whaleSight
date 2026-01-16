@@ -5,7 +5,8 @@ import { registerAllCommands } from "./commands/index.js";
 import { registerAllHandlers } from "./handlers/index.js";
 import { createWebhook, updateWebhookAddresses } from "./services/helius.js";
 import db from "./db/pool.js";
-import parseHeliusData from "./utils/parseTransactionData.js";
+import parseHeliusSwap from "./utils/parseTransactionData.js";
+import { testParser } from "./utils/parseTransactionData.js";
 
 
 dotenv.config();
@@ -97,7 +98,7 @@ app.post('/transactions', (req, res) => {
 const data = JSON.stringify(req.body, null, 2)
 console.log(data)
 
-const parsed = parseHeliusData(data)
+const parsed = parseHeliusSwap(data)
 console.log('Parsed version: ----------------------------------------------------------------------', parsed)
 res.send("Transaction received")
 })
