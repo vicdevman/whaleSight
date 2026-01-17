@@ -125,15 +125,18 @@ app.post("/transactions", async (req, res) => {
     const allAddresses = await db`SELECT wallet_address FROM tracked_wallets`;
     const formattedAddresses = allAddresses.map((row) => row.wallet_address);
 
-    // Parse all transactions at once (filters nulls and sorts by timestamp)
-    const parsedTransactions = parseHeliusBatch(
-      transactions,
-      formattedAddresses
-    );
-    console.log(`Found ${parsedTransactions.length} relevant transaction(s)`);
+    // Process each transaction
+    for (const tx of transactions) {
+      // Parse the transaction
+      const parsed = parseHeliusSwap(tx, formattedAddresses);
 
-    // Process each parsed transaction
-    for (const parsed of parsedTransactions) {
+      if (!parsed) {
+        console.log(
+          "Transaction not relevant (not a swap or no tracked wallet)"
+        );
+        continue;
+      }
+
       // Check if we've already processed this transaction
       if (processedTransactions.has(parsed.signature)) {
         console.log(
