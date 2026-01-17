@@ -251,10 +251,7 @@ export default function parseHeliusSwap(tx, trackedWallets) {
  * Batch process multiple transactions
  */
 export function parseHeliusBatch(transactions, trackedWallets) {
-  return transactions
-    .map(tx => parseHeliusSwap(tx, trackedWallets))
-    .filter(Boolean) // Remove nulls
-    .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
+  return transactions.map(tx => parseHeliusSwap(tx, trackedWallets));
 }
 
 /**
