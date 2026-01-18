@@ -92,6 +92,7 @@ export default async function sendTransaction(bot, data) {
 
   if (userResults.length == 1) {
     console.log(`Single user tracking wallet: ${address}`);
+    console.log('rugcheck: ------------------------------', rugCheckData);
     const user = userResults[0];
     try {
       await bot.sendMessage(user.chat_id, messageText(user.label), options);
