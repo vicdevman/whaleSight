@@ -2,7 +2,7 @@ import db from "../db/pool.js";
 import rugCheck from "../services/rugcheck.js";
 
 export default async function sendTransaction(bot, data) {
-  const { wallet: address, action, tokenAmount, solAmount, signature } = data;
+  const { wallet: address, action, tokenAmount, solAmount, signature, tokenMint } = data;
 
   // Fetch unique users tracking this wallet to avoid duplicate notifications
   const userResults = await db`
@@ -15,7 +15,7 @@ export default async function sendTransaction(bot, data) {
     return;
   }
 
-  const rugCheckData = await rugCheck(address);
+  const rugCheckData = await rugCheck(tokenMint);
 
   // Determine emoji based on action
   let actionEmoji = "🟢";
