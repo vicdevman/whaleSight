@@ -8,6 +8,7 @@ import db from "./db/pool.js";
 import parseHeliusSwap from "./utils/parseTransactionData.js";
 import { testParser } from "./utils/parseTransactionData.js";
 import sendTransaction from "./handlers/sendTransaction.js";
+import rugCheck from "./services/rugcheck.js";
 
 dotenv.config();
 const app = express();
@@ -161,6 +162,13 @@ app.post("/transactions", async (req, res) => {
   res.send(
     `Processed ${processedCount} unique transaction(s), skipped ${skippedCount} duplicates`
   );
+});
+
+app.get("/rugcheck", async (req, res) => {
+    const { address } = req.query;
+    const data = await rugCheck(address);
+    console.log(data);
+    res.send(data);
 });
 
 app.listen(PORT, () => {
