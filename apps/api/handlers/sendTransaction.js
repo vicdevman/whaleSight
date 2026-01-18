@@ -16,6 +16,7 @@ export default async function sendTransaction(bot, data) {
   }
 
   const rugCheckData = await rugCheck(address);
+  console.log(rugCheckData);
 
   // Determine emoji based on action
   let actionEmoji = "🟢";
