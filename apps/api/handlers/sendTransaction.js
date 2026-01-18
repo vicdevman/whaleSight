@@ -16,7 +16,6 @@ export default async function sendTransaction(bot, data) {
   }
 
   const rugCheckData = await rugCheck(address);
-  console.log(rugCheckData);
 
   // Determine emoji based on action
   let actionEmoji = "🟢";
@@ -92,7 +91,9 @@ export default async function sendTransaction(bot, data) {
 
   if (userResults.length == 1) {
     console.log(`Single user tracking wallet: ${address}`);
+    console.log(`address: ------------------------------`, address);
     console.log('rugcheck: ------------------------------', rugCheckData);
+
     const user = userResults[0];
     try {
       await bot.sendMessage(user.chat_id, messageText(user.label), options);

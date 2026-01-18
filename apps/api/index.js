@@ -111,7 +111,7 @@ app.post("/bot", (req, res) => {
 
 app.post("/transactions", async (req, res) => {
   const data = JSON.stringify(req.body, null, 2);
-  console.log("Webhook payload:", data);
+  // console.log("Webhook payload:", data);
 
   // Clean up old signatures from cache
   cleanupSignatureCache();
