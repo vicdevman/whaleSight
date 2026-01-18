@@ -1,4 +1,5 @@
 import db from "../db/pool.js";
+import rugCheck from "../services/rugcheck.js";
 
 export default async function sendTransaction(bot, data) {
   const { wallet: address, action, tokenAmount, solAmount, signature } = data;
@@ -14,41 +15,102 @@ export default async function sendTransaction(bot, data) {
     return;
   }
 
+  const rugCheckData = await rugCheck(address);
+
+  // Determine emoji based on action
+  let actionEmoji = "🟢";
+  let actionText = "Buy";
+
+  const actionLower = action.toLowerCase();
+
+  if (actionLower.includes("sell")) {
+    actionEmoji = "🔴";
+    actionText = "Sell";
+  } else if (!actionLower.includes("buy") && solAmount > 0) {
+    actionEmoji = "🔴";
+    actionText = "Sell";
+  }
+
+  // Rugcheck extended logic
+  const tokenName = rugCheckData.metadata?.name || "Unknown Token";
+  const tokenSymbol = rugCheckData.metadata?.symbol || "";
+  const tokenDisplay = tokenSymbol
+    ? `${tokenName} ($${tokenSymbol})`
+    : tokenName;
+
+  const score = rugCheckData.score || 0;
+  let riskLevel = "🟢 Safe";
+  if (score > 30000) riskLevel = "🛑 Danger";
+  else if (score > 15000) riskLevel = "🔴 High Risk";
+  else if (score > 5000) riskLevel = "🟡 Caution";
+
+  // Critical Checks
+  const mintStatus = !rugCheckData.mintAuthority ? "✅" : "❌";
+  const freezeStatus = !rugCheckData.freezeAuthority ? "✅" : "❌";
+
+  const lpPct = rugCheckData.lpLockedPct || 0;
+  let lpStatus = "⚠️";
+  if (lpPct > 80) lpStatus = "🟢";
+  else if (lpPct < 50) lpStatus = "🔴";
+
+  const liquidity = rugCheckData.totalLiquidity
+    ? `$${Math.floor(rugCheckData.totalLiquidity).toLocaleString()}`
+    : "Unknown";
+  const mcap = rugCheckData.marketCap
+    ? `$${Math.floor(rugCheckData.marketCap).toLocaleString()}`
+    : "Unknown";
+
+  const rugcheckSummary =
+    `*Token:* ${tokenDisplay}\n` +
+    `*Risk:* ${riskLevel} (${score})\n` +
+    `*Mint:* ${mintStatus} | *Freeze:* ${freezeStatus} | *LP:* ${lpStatus} ${lpPct.toFixed(1)}%\n` +
+    `*Liq:* ${liquidity} | *MCap:* ${mcap}`;
+
+  const messageText = (label) =>
+    `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n\n` +
+    `*Address:* \`${address}\`\n` +
+    `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL ($${tokenAmount.toLocaleString()})\n\n` +
+    `${rugcheckSummary}\n\n` +
+    `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
+
+  const options = {
+    parse_mode: "Markdown",
+    reply_markup: {
+      inline_keyboard: [
+        [
+          { text: "Show Risks ⚠️", callback_data: `risks_${address}` },
+          { text: "Show Top Holders 👥", callback_data: `holders_${address}` },
+        ],
+        [
+          { text: "Refresh 🔄", callback_data: `refresh_${address}` },
+          { text: "Solscan 🔗", url: `https://solscan.io/tx/${signature}` },
+        ],
+      ],
+    },
+  };
+
   if (userResults.length == 1) {
     console.log(`Single user tracking wallet: ${address}`);
     const user = userResults[0];
-    const text =
-      `🚨 *${action} Detected* 🚨\n\n` +
-      `*Wallet:* ${user.label}\n` +
-      `*Address:* \`${address}\`\n` +
-      `*Amount:* ${tokenAmount.toLocaleString()} tokens\n` +
-      `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL\n\n` +
-      `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
-
-    bot.sendMessage(user.chat_id, text, { parse_mode: "Markdown" });
+    try {
+      await bot.sendMessage(user.chat_id, messageText(user.label), options);
+    } catch (error) {
+      console.error(`Failed to notify ${user.chat_id}:`, error.message);
+    }
     return;
   }
 
   console.log("users:", userResults);
 
-  userResults.forEach((user) => {
-    const text =
-      `🚨 *${action} Detected* 🚨\n\n` +
-      `*Wallet:* ${user.label}\n` +
-      `*Address:* \`${address}\`\n` +
-      `*Amount:* ${tokenAmount.toLocaleString()} tokens\n` +
-      `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL\n\n` +
-      `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
-
+  for (const user of userResults) {
     try {
-      bot.sendMessage(user.chat_id, text, { parse_mode: "Markdown" });
+      await bot.sendMessage(user.chat_id, messageText(user.label), options);
     } catch (error) {
       if (error.message.includes("bot was blocked by the user")) {
         // await db`DELETE FROM tracked_wallets WHERE user_chat_id = ${user.chat_id}`;
-        // console.log(`User ${user.chat_id} blocked bot; removed from database.`);
       } else {
         console.error(`Failed to notify ${user.chat_id}:`, error.message);
       }
     }
-  });
+  }
 }
