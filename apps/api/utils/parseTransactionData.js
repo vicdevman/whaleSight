@@ -29,27 +29,24 @@ function getTrackedWallet(tx, trackedWallets) {
 function calculateSolFlow(tx, wallet) {
   let sol = 0;
 
-  for (const t of tx.nativeTransfers || []) {
-    // Ignore tiny dust transfers (< 0.00001 SOL)
-    if (t.amount < 10_000) continue;
-
-    if (t.fromUserAccount === wallet) {
-      sol -= t.amount / 1e9;
+  // 1. Sum native SOL transfers
+  for (const transfer of tx.nativeTransfers || []) {
+    if (transfer.fromUserAccount === wallet) {
+      sol -= transfer.amount / 1e9;
     }
 
-    if (t.toUserAccount === wallet) {
-      sol += t.amount / 1e9;
+    if (transfer.toUserAccount === wallet) {
+      sol += transfer.amount / 1e9;
     }
   }
 
-  // Subtract base fee only
+  // 2. Subtract transaction fee once
   if (tx.feePayer === wallet && tx.fee) {
     sol -= tx.fee / 1e9;
   }
 
-  return Number(sol.toFixed(4));
+  return sol;
 }
-
 
 /**
  * Get the actual token being traded (excludes wrapped SOL and stablecoins)
