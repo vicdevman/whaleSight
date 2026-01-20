@@ -1,17 +1,67 @@
-import './App.css'
+import { useState } from "react";
+import { Plus } from "lucide-react";
+import { motion } from "framer-motion";
+import InsightCard from "./components/InsightCard";
+import WalletList from "./components/WalletList";
+import AddWalletDrawer from "./components/AddWalletDrawer";
+import "./App.css";
+import WebApp from "@twa-dev/sdk";
 
 function App() {
+  // Always call this first
+  WebApp.ready();
+
+  const user = WebApp.initDataUnsafe?.user;
+
+  console.log(user);
+
+  const [wallets, setWallets] = useState([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const handleAddWallet = (newWallet) => {
+    setWallets([...wallets, newWallet]);
+  };
+
+  const handleDeleteWallet = (address) => {
+    setWallets(wallets.filter((w) => w.address !== address));
+  };
 
   return (
-    <div className="app">
-     <div>
-      <div>ohdoucho</div>
-     
-</div>
+    <div className="app bg-[#0b0b0b] min-h-dvh">
+      <main className="flex-1 w-full max-w-md mx-auto p-4 flex flex-col relative h-full">
+        {/* Header/Title - Optional */}
+        <div className="mt-2 mb-4">
+          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-white/60">
+            WhaleSight
+          </h1>
+        </div>
 
-     <div className='cta'>add wallet</div>
+        <InsightCard count={wallets.length} />
+
+        <WalletList wallets={wallets} onDelete={handleDeleteWallet} />
+
+        {/* Floating Action Button */}
+        <motion.div
+          className="fixed bottom-8 right-6 lg:absolute lg:bottom-8 lg:right-6 z-30"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <button
+            onClick={() => setIsDrawerOpen(true)}
+            className="w-14 h-14 rounded-full bg-white text-black shadow-lg shadow-white/10 flex items-center justify-center hover:bg-gray-100 transition-colors"
+          >
+            <Plus size={24} strokeWidth={2.5} />
+          </button>
+        </motion.div>
+      </main>
+
+      <AddWalletDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        onAdd={handleAddWallet}
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

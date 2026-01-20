@@ -1,15 +1,2 @@
-.app {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: baseline;
-  height: 100dvh;
-  width: 100%;
-}
-
-.cta {
-padding: 3;
-background-color: blue;
-width: 100%;
-display: flex;
-}
+/* App.css */
+/* Styles are handled via Tailwind util classes and global CSS variables */
