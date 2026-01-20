@@ -177,8 +177,11 @@ app.listen(PORT, () => {
 
 app.post("/api/wallets", async (req, res) => {
     const { telegramUser } = req.body;
-    console.log(telegramUser);
-    res.send("success");
+    console.log('incoming')
+    console.log('telegram user:', telegramUser);
+
+    const userwallets = await db`SELECT * FROM tracked_wallets WHERE user_chat_id = ${telegramUser.id}`;
+    res.json(userwallets);
 });
 
 // Export the Express app as the default export

@@ -25,7 +25,7 @@ const WalletList = ({ wallets, onDelete }) => {
               {wallet.label || `Wallet ${index + 1}`}
             </span>
             <span className="text-white/40 text-xs truncate max-w-[200px] font-mono">
-              {wallet.address}
+              {wallet.wallet_address}
             </span>
           </div>
           
@@ -35,7 +35,7 @@ const WalletList = ({ wallets, onDelete }) => {
             </button>
             {onDelete && (
                <button 
-               onClick={() => onDelete(wallet.address)}
+               onClick={() => onDelete(wallet.wallet_address)}
                className="p-2 text-white/30 hover:text-red-400 transition-colors"
              >
                <Trash2 size={18} />

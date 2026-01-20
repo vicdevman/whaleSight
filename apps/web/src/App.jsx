@@ -6,6 +6,7 @@ import WalletList from "./components/WalletList";
 import AddWalletDrawer from "./components/AddWalletDrawer";
 import "./App.css";
 import WebApp from "@twa-dev/sdk";
+import { useEffect } from "react";
 
 function App() {
   // Always call this first
@@ -13,7 +14,8 @@ function App() {
 
   const telegramUser = WebApp.initDataUnsafe?.user;
 
-  fetch("https://whalesight.onrender.com/api/wallets",
+  useEffect(() => {
+    fetch("https://whalesight.onrender.com/api/wallets",
     {
       method: "POST",
       headers: {
@@ -29,6 +31,7 @@ function App() {
     .catch((error) => {
       console.error("Error fetching wallets:", error);
     });
+  }, [telegramUser]);
 
   const [wallets, setWallets] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);

@@ -37,27 +37,27 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl"
           >
-            <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-8" />
+            {/* <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-8" /> */}
             
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold text-white">New Wallet</h2>
               <button 
                 onClick={onClose}
-                className="p-2 bg-white/5 rounded-full text-white/60 hover:text-white"
+                className="p-3 bg-white/5 rounded-full text-white/60 hover:text-white"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-              <div className="space-y-2">
-                <label className="text-sm text-white/60 ml-1">Label (Optional)</label>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              <div className="space-y-4">
+                <label className="text-sm text-white/60 ml-1">Label</label>
                 <input
                   type="text"
                   value={label}
                   onChange={(e) => setLabel(e.target.value)}
                   placeholder="e.g. Main Trading"
-                  className="w-full bg-[#1e1e1e] border border-white/5 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-colors"
+                  className="w-full bg-[#1e1e1e] mt-1 border border-white/5 rounded-xl px-4 py-2.5 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
@@ -68,13 +68,13 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   placeholder="sol..."
-                  className="w-full bg-[#1e1e1e] border border-white/5 rounded-xl px-4 py-4 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-colors font-mono text-sm"
+                  className="w-full mt-1 bg-[#1e1e1e] border border-white/5 rounded-xl px-4 py-2.5 text-white placeholder:text-white/20 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
                 />
               </div>
 
               <button
                 type="submit"
-                disabled={!address}
+                disabled={!address || !label}
                 className="mt-4 w-full bg-white text-black font-semibold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Start Tracking
