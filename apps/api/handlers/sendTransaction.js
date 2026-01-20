@@ -35,14 +35,14 @@ export default async function sendTransaction(bot, data) {
   const tokenName = rugCheckData.metadata?.name || "Unknown Token";
   const tokenSymbol = rugCheckData.metadata?.symbol || "";
   const tokenDisplay = tokenSymbol
-    ? `${tokenName} ($${tokenSymbol})`
+    ? `${tokenName} (${tokenSymbol})`
     : tokenName;
 
   const score = rugCheckData.score || 0;
   let riskLevel = "🟢 Safe";
-  if (score > 30000) riskLevel = "🛑 Danger";
-  else if (score > 15000) riskLevel = "🔴 High Risk";
-  else if (score > 5000) riskLevel = "🟡 Caution";
+  if (score > 30000) riskLevel = "🛑 Danger - DYOR";
+  else if (score > 15000) riskLevel = "🔴 High Risk - DYOR";
+  else if (score > 5000) riskLevel = "🟡 Caution - DYOR";
 
   // Critical Checks
   const mintStatus = !rugCheckData.mintAuthority ? "✅" : "❌";
@@ -69,7 +69,7 @@ export default async function sendTransaction(bot, data) {
   const messageText = (label) =>
     `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n\n` +
     `*Address:* \`${address}\`\n` +
-    `*Value:* $ ${solAmount.toFixed(4)} (${tokenAmount.toLocaleString()} ${tokenSymbol})\n\n` +
+    `*Value:* ${solAmount.toFixed(4)} SOL (${tokenAmount.toLocaleString()} ${tokenSymbol})\n\n` +
     `${rugcheckSummary}\n\n` +
     `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
 

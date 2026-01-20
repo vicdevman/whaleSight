@@ -25,33 +25,31 @@ function getTrackedWallet(tx, trackedWallets) {
   return null;
 }
 
-/**
- * Accurate SOL flow for a wallet using Helius data
- * Returns:
- *  - negative = SOL spent
- *  - positive = SOL received
- */
+
 function calculateSolFlow(tx, wallet) {
   let sol = 0;
 
-  // 1. Sum native SOL transfers
-  for (const transfer of tx.nativeTransfers || []) {
-    if (transfer.fromUserAccount === wallet) {
-      sol -= transfer.amount / 1e9;
+  for (const t of tx.nativeTransfers || []) {
+    // Ignore tiny dust transfers (< 0.00001 SOL)
+    if (t.amount < 10_000) continue;
+
+    if (t.fromUserAccount === wallet) {
+      sol -= t.amount / 1e9;
     }
 
-    if (transfer.toUserAccount === wallet) {
-      sol += transfer.amount / 1e9;
+    if (t.toUserAccount === wallet) {
+      sol += t.amount / 1e9;
     }
   }
 
-  // 2. Subtract transaction fee once
+  // Subtract base fee only
   if (tx.feePayer === wallet && tx.fee) {
     sol -= tx.fee / 1e9;
   }
 
-  return sol;
+  return Number(sol.toFixed(4));
 }
+
 
 /**
  * Get the actual token being traded (excludes wrapped SOL and stablecoins)
