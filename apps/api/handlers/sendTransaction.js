@@ -78,12 +78,12 @@ export default async function sendTransaction(bot, data) {
     reply_markup: {
       inline_keyboard: [
         [
-          { text: "Show Risks ⚠️", callback_data: `risks_${address}` },
-          { text: "Show Top Holders 👥", callback_data: `holders_${address}` },
+          { text: "Refresh", callback_data: `refresh_${tokenMint}` },
+          { text: "Dexscreener", url: `https://dexscreener.com/solana/${tokenMint}` },
         ],
         [
-          { text: "Refresh 🔄", callback_data: `refresh_${address}` },
-          { text: "Solscan 🔗", url: `https://solscan.io/tx/${signature}` },
+          { text: "Risks", callback_data: `risks_${tokenMint}` },
+          { text: "Top Holders", callback_data: `holders_${tokenMint}` },
         ],
       ],
     },
