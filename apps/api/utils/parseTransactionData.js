@@ -1,20 +1,9 @@
-/**
- * Helius Webhook Parser for Solana Token Trading
- * Handles complex swap scenarios with wrapped SOL and multi-hop routes
- */
-
 const WRAPPED_SOL = "So11111111111111111111111111111111111111112";
 
-/**
- * Find the tracked wallet involved in the transaction
- */
 function getTrackedWallet(tx, trackedWallets) {
-  // Primary: Fee payer is usually the initiator
   if (trackedWallets.includes(tx.feePayer)) {
     return tx.feePayer;
   }
-
-  // Secondary: Check token transfers for tracked wallet
   for (const transfer of tx.tokenTransfers || []) {
     if (trackedWallets.includes(transfer.fromUserAccount)) {
       return transfer.fromUserAccount;
@@ -24,7 +13,6 @@ function getTrackedWallet(tx, trackedWallets) {
     }
   }
 
-  // Tertiary: Check account data for activity
   for (const acc of tx.accountData || []) {
     if (
       trackedWallets.includes(acc.account) &&
@@ -38,63 +26,31 @@ function getTrackedWallet(tx, trackedWallets) {
 }
 
 /**
- * Calculate total SOL spent/received (including wrapped SOL flows and stablecoin routes)
- * Returns negative for buys (SOL spent), positive for sells (SOL received)
+ * Accurate SOL flow for a wallet using Helius data
+ * Returns:
+ *  - negative = SOL spent
+ *  - positive = SOL received
  */
 function calculateSolFlow(tx, wallet) {
-  let totalSol = 0;
-  
-  const STABLECOINS = [
-    "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v", // USDC
-    "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // USDT
-  ];
+  let sol = 0;
 
-  // 1. Check direct native balance changes (including fees)
-  const accountData = tx.accountData?.find(a => a.account === wallet);
-  if (accountData?.nativeBalanceChange) {
-    totalSol += accountData.nativeBalanceChange / 1e9;
-  }
-
-  // 2. Check wrapped SOL transfers
-  const wsolTransfers = tx.tokenTransfers?.filter(
-    t => t.mint === WRAPPED_SOL
-  ) || [];
-
-  for (const transfer of wsolTransfers) {
+  // 1. Sum native SOL transfers
+  for (const transfer of tx.nativeTransfers || []) {
     if (transfer.fromUserAccount === wallet) {
-      // Wallet sent wSOL (buying with SOL)
-      totalSol -= transfer.tokenAmount;
-    } else if (transfer.toUserAccount === wallet) {
-      // Wallet received wSOL (selling for SOL)
-      totalSol += transfer.tokenAmount;
+      sol -= transfer.amount / 1e9;
+    }
+
+    if (transfer.toUserAccount === wallet) {
+      sol += transfer.amount / 1e9;
     }
   }
 
-  // 3. If SOL flow is near zero, check for stablecoin swaps
-  // (User might be buying with USDC/USDT instead of SOL)
-  if (Math.abs(totalSol) < 0.001) {
-    const stablecoinSent = tx.tokenTransfers?.find(
-      t => STABLECOINS.includes(t.mint) && t.fromUserAccount === wallet
-    );
-    const stablecoinReceived = tx.tokenTransfers?.find(
-      t => STABLECOINS.includes(t.mint) && t.toUserAccount === wallet
-    );
-
-    if (stablecoinSent) {
-      // Approximate: 1 USDC/USDT ≈ some amount of SOL
-      // We'll use the stablecoin amount as a proxy (will be converted to SOL equivalent later)
-      totalSol = -stablecoinSent.tokenAmount / 100; // Rough estimate
-    } else if (stablecoinReceived) {
-      totalSol = stablecoinReceived.tokenAmount / 100;
-    }
-  }
-
-  // Add back the transaction fee (it's included in native balance change)
+  // 2. Subtract transaction fee once
   if (tx.feePayer === wallet && tx.fee) {
-    totalSol += tx.fee / 1e9;
+    sol -= tx.fee / 1e9;
   }
 
-  return totalSol;
+  return sol;
 }
 
 /**
@@ -107,37 +63,40 @@ function getTokenTransfer(tx, wallet) {
     "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB", // USDT
   ];
 
-  const transfers = tx.tokenTransfers?.filter(
-    t => t.mint !== WRAPPED_SOL &&
-    !STABLECOINS.includes(t.mint) &&
-    (t.fromUserAccount === wallet || t.toUserAccount === wallet)
-  ) || [];
+  const transfers =
+    tx.tokenTransfers?.filter(
+      (t) =>
+        t.mint !== WRAPPED_SOL &&
+        !STABLECOINS.includes(t.mint) &&
+        (t.fromUserAccount === wallet || t.toUserAccount === wallet),
+    ) || [];
 
   if (transfers.length === 0) {
     // If no transfers found, check if user sent stablecoins (could be buying with USDC/USDT)
     const stablecoinSent = tx.tokenTransfers?.find(
-      t => STABLECOINS.includes(t.mint) && t.fromUserAccount === wallet
+      (t) => STABLECOINS.includes(t.mint) && t.fromUserAccount === wallet,
     );
-    
+
     if (stablecoinSent) {
       // User sent stablecoins, find what they received (excluding stables and wSOL)
       const received = tx.tokenTransfers?.find(
-        t => !STABLECOINS.includes(t.mint) && 
-        t.mint !== WRAPPED_SOL &&
-        t.toUserAccount === wallet
+        (t) =>
+          !STABLECOINS.includes(t.mint) &&
+          t.mint !== WRAPPED_SOL &&
+          t.toUserAccount === wallet,
       );
       if (received) return received;
     }
-    
+
     return null;
   }
 
   // Priority 1: Token going TO wallet (likely a buy)
-  const receivedToken = transfers.find(t => t.toUserAccount === wallet);
+  const receivedToken = transfers.find((t) => t.toUserAccount === wallet);
   if (receivedToken) return receivedToken;
 
   // Priority 2: Token coming FROM wallet (likely a sell)
-  const sentToken = transfers.find(t => t.fromUserAccount === wallet);
+  const sentToken = transfers.find((t) => t.fromUserAccount === wallet);
   if (sentToken) return sentToken;
 
   // Fallback: first non-wSOL, non-stablecoin transfer
@@ -169,14 +128,14 @@ function classifySwap(solFlow, tokenTransfer, wallet) {
 function getTokenInfo(tokenTransfer, action, wallet) {
   const amount = Math.abs(tokenTransfer.tokenAmount);
   const direction = action === "BUY" ? "received" : "sent";
-  
+
   return {
     mint: tokenTransfer.mint,
     amount,
     direction,
     // Token account addresses for reference
     fromAccount: tokenTransfer.fromTokenAccount,
-    toAccount: tokenTransfer.toTokenAccount
+    toAccount: tokenTransfer.toTokenAccount,
   };
 }
 
@@ -224,26 +183,26 @@ export default function parseHeliusSwap(tx, trackedWallets) {
     // Token Details
     tokenMint: tokenInfo.mint,
     tokenAmount: tokenInfo.amount,
-    
+
     // SOL Details
     solAmount: Math.abs(solFlow),
     solFlow, // Raw flow (negative for buys, positive for sells)
-    
+
     // Price
     pricePerToken: Number(pricePerToken.toFixed(9)),
-    
+
     // Transaction Metadata
     source: tx.source, // e.g., "PUMP_AMM", "JUPITER"
     signature: tx.signature,
     timestamp: tx.timestamp,
     time: new Date(tx.timestamp * 1000).toISOString(),
-    
+
     // Additional Context
     fee: tx.fee / 1e9,
     slot: tx.slot,
-    
+
     // Error handling
-    transactionError: tx.transactionError
+    transactionError: tx.transactionError,
   };
 }
 
@@ -252,7 +211,7 @@ export default function parseHeliusSwap(tx, trackedWallets) {
  */
 export function parseHeliusBatch(transactions, trackedWallets) {
   return transactions
-    .map(tx => parseHeliusSwap(tx, trackedWallets))
+    .map((tx) => parseHeliusSwap(tx, trackedWallets))
     .filter(Boolean) // Remove nulls
     .sort((a, b) => b.timestamp - a.timestamp); // Most recent first
 }
@@ -274,23 +233,23 @@ export function testParser() {
       {
         account: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         nativeBalanceChange: 9933,
-        tokenBalanceChanges: []
-      }
+        tokenBalanceChanges: [],
+      },
     ],
     tokenTransfers: [
       {
         mint: "E9uUgGXJ77AVmaqVhN544oz644VUPBGU6r4qUaeppump",
         fromUserAccount: "B9wKM6pjxsGamAbYm78YBsbFvKpDQFnQ3a4csnGKiKiM",
         toUserAccount: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
-        tokenAmount: 33511.36643
+        tokenAmount: 33511.36643,
       },
       {
         mint: "So11111111111111111111111111111111111111112",
         fromUserAccount: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         toUserAccount: "B9wKM6pjxsGamAbYm78YBsbFvKpDQFnQ3a4csnGKiKiM",
-        tokenAmount: 0.442467727
-      }
-    ]
+        tokenAmount: 0.442467727,
+      },
+    ],
   };
 
   // Test Case 2: Multi-hop USDT → USDC → SOL → Token
@@ -306,8 +265,8 @@ export function testParser() {
       {
         account: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         nativeBalanceChange: 4026,
-        tokenBalanceChanges: []
-      }
+        tokenBalanceChanges: [],
+      },
     ],
     tokenTransfers: [
       {
@@ -317,7 +276,7 @@ export function testParser() {
         toTokenAccount: "Fe2Su67TrN4XHP8A4sUHK4iUsmVukFXB89auVMTj5nnB",
         toUserAccount: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         tokenAmount: 4234.958822,
-        tokenStandard: "Fungible"
+        tokenStandard: "Fungible",
       },
       {
         fromTokenAccount: "FF5yfX1VezPt5uFXkwVsriSq2TdCMhbkXj9uf6Wmy9iQ",
@@ -326,7 +285,7 @@ export function testParser() {
         toTokenAccount: "GEaRRckcM37BuBne4iFy5HBQQntdpFUHbVKsFf7zYj7f",
         toUserAccount: "FDrY5i5kuadZ1ik8gPS26qjj9Rw9mpufXMegGC2HNSP7",
         tokenAmount: 0.446961297,
-        tokenStandard: "Fungible"
+        tokenStandard: "Fungible",
       },
       {
         fromTokenAccount: "A4SbaK3eKbWQsonAupUSaeFYJqWDTrDLvH1SoEh5K2vg",
@@ -335,7 +294,7 @@ export function testParser() {
         toTokenAccount: "5dRazfLSjTq15r7XL6b5WBGTFtria1EHZQS7VZr7BD5V",
         toUserAccount: "EEUNhHsRoUVgJUFpkupmdF4v7uLUw1zhYLp7u9s8zFqG",
         tokenAmount: 64,
-        tokenStandard: "Fungible"
+        tokenStandard: "Fungible",
       },
       {
         fromTokenAccount: "F9xyBfChZ2uCv7aQujJCe6gKVx7ydCmxfh2ZWrNwFoKr",
@@ -344,7 +303,7 @@ export function testParser() {
         toTokenAccount: "6fGbtYDCTkBLb3qvDh4ZSH4rDdGYDLguzDLZV76Ltaks",
         toUserAccount: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         tokenAmount: 63.988864,
-        tokenStandard: "Fungible"
+        tokenStandard: "Fungible",
       },
       {
         fromTokenAccount: "6fGbtYDCTkBLb3qvDh4ZSH4rDdGYDLguzDLZV76Ltaks",
@@ -353,7 +312,7 @@ export function testParser() {
         toTokenAccount: "GhFfLFSprPpfoRaWakPMmJTMJBHuz6C694jYwxy2dAic",
         toUserAccount: "65ZHSArs5XxPseKQbB1B4r16vDxMWnCxHMzogDAqiDUc",
         tokenAmount: 63.988864,
-        tokenStandard: "Fungible"
+        tokenStandard: "Fungible",
       },
       {
         fromTokenAccount: "CRo8DBwrmd97DJfAnvCv96tZPL5Mktf2NZy2ZnhDer1A",
@@ -362,20 +321,20 @@ export function testParser() {
         toTokenAccount: "FF5yfX1VezPt5uFXkwVsriSq2TdCMhbkXj9uf6Wmy9iQ",
         toUserAccount: "7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h",
         tokenAmount: 0.447411393,
-        tokenStandard: "Fungible"
-      }
-    ]
+        tokenStandard: "Fungible",
+      },
+    ],
   };
 
   const tracked = ["7gEQ6syDZmyPE4JdfJm4qatawnDqvqdh6i8jJjCXio6h"];
-  
+
   console.log("=== Test Case 1: Direct SOL → Token ===");
   const result1 = parseHeliusSwap(directSwap, tracked);
   console.log(JSON.stringify(result1, null, 2));
-  
+
   console.log("\n=== Test Case 2: Multi-hop USDT → Token ===");
   const result2 = parseHeliusSwap(multiHopSwap, tracked);
   console.log(JSON.stringify(result2, null, 2));
-  
+
   return { directSwap: result1, multiHopSwap: result2 };
 }

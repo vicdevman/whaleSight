@@ -69,7 +69,7 @@ export default async function sendTransaction(bot, data) {
   const messageText = (label) =>
     `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n\n` +
     `*Address:* \`${address}\`\n` +
-    `*Value:* ${Math.abs(solAmount).toFixed(4)} SOL ($${tokenAmount.toLocaleString()})\n\n` +
+    `*Value:* $ ${solAmount.toFixed(4)} (${tokenAmount.toLocaleString()} ${tokenSymbol})\n\n` +
     `${rugcheckSummary}\n\n` +
     `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
 
