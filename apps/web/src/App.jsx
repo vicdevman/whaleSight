@@ -9,10 +9,12 @@ import WebApp from "@twa-dev/sdk";
 import { useEffect } from "react";
 
 function App() {
-  // Always call this first
-  WebApp.ready();
+  const [telegramUser, setTelegramUser] = useState(null);
 
-  const telegramUser = WebApp.initDataUnsafe?.user;
+  useEffect(() => {
+    WebApp.ready();
+    setTelegramUser(WebApp.initDataUnsafe?.user);
+  }, []);
 
   useEffect(() => {
     fetch("https://whalesight.onrender.com/api/wallets",
