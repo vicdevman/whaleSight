@@ -175,6 +175,12 @@ app.listen(PORT, () => {
   console.log(`Bot running on http://127.0.0.1:${PORT}`);
 });
 
+app.post("/api/wallets", async (req, res) => {
+    const { telegramUser } = req.body;
+    console.log(telegramUser);
+    res.send("success");
+});
+
 // Export the Express app as the default export
 export default app;
 

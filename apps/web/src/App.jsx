@@ -11,9 +11,24 @@ function App() {
   // Always call this first
   WebApp.ready();
 
-  const user = WebApp.initDataUnsafe?.user;
+  const telegramUser = WebApp.initDataUnsafe?.user;
 
-  console.log(user);
+  fetch("https://whalesight.onrender.com/api/wallets",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ telegramUser }),
+    }
+  ) 
+    .then((response) => response.json())
+    .then((data) => {
+      setWallets(data);
+    })
+    .catch((error) => {
+      console.error("Error fetching wallets:", error);
+    });
 
   const [wallets, setWallets] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -29,13 +44,6 @@ function App() {
   return (
     <div className="app bg-[#0b0b0b] min-h-dvh">
       <main className="flex-1 w-full max-w-md mx-auto p-4 flex flex-col relative h-full">
-        {/* Header/Title - Optional */}
-        <div className="mt-2 mb-4">
-          <h1 className="text-xl font-bold bg-clip-text text-transparent bg-linear-to-r from-white to-white/60">
-            WhaleSight
-          </h1>
-        </div>
-
         <InsightCard count={wallets.length} />
 
         <WalletList wallets={wallets} onDelete={handleDeleteWallet} />
