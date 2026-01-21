@@ -17,22 +17,44 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetch("https://whalesight.onrender.com/api/wallets",
-    {
+    const isDev = true;
+    const userToFetch =
+      telegramUser ||
+      (isDev ? { id: 844954314, first_name: "TestUser" } : null);
+
+    if (!userToFetch) {
+      console.log("No Telegram user detected");
+      return;
+    }
+
+    const API_URL = isDev
+      ? "http://localhost:5000"
+      : "https://whalesight.onrender.com";
+
+    console.log(
+      `Fetching wallets from ${API_URL}/api/wallets for user:`,
+      userToFetch,
+    );
+
+    fetch(`${API_URL}/api/wallets`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ telegramUser }),
-    }
-  ) 
-    .then((response) => response.json())
-    .then((data) => {
-      setWallets(data);
+      body: JSON.stringify({ telegramUser: userToFetch }),
     })
-    .catch((error) => {
-      console.error("Error fetching wallets:", error);
-    });
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Wallets fetched:", data);
+        setWallets(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching wallets:", error);
+      });
   }, [telegramUser]);
 
   const [wallets, setWallets] = useState([]);

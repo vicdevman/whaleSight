@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import TelegramBot from "node-telegram-bot-api";
+import cors from "cors";
 import { registerAllCommands } from "./commands/index.js";
 import { registerAllHandlers } from "./handlers/index.js";
 import { createWebhook, updateWebhookAddresses } from "./services/helius.js";
@@ -15,6 +16,7 @@ const app = express();
 
 //middlewares
 app.use(express.json());
+app.use(cors());
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 const PORT = process.env.PORT;
@@ -24,8 +26,7 @@ const serverUrl = process.env.SERVER_URL;
 export const bot = new TelegramBot(token, { polling: false });
 
 const processedSignaturesCache = new Map();
-const SIGNATURE_CACHE_TTL = 2 * 60 * 1000; 
-
+const SIGNATURE_CACHE_TTL = 2 * 60 * 1000;
 
 function cleanupSignatureCache() {
   const now = Date.now();
@@ -137,7 +138,7 @@ app.post("/transactions", async (req, res) => {
     // Check if we've already processed this transaction signature (in cache)
     if (processedSignaturesCache.has(parsed.signature)) {
       console.log(
-        `Duplicate transaction detected (cached): ${parsed.signature}`
+        `Duplicate transaction detected (cached): ${parsed.signature}`,
       );
       skippedCount++;
       continue;
@@ -148,7 +149,7 @@ app.post("/transactions", async (req, res) => {
 
     console.log(
       "Parsed transaction: -----------------------------------------------------------",
-      parsed
+      parsed,
     );
 
     // Send notification
@@ -157,18 +158,18 @@ app.post("/transactions", async (req, res) => {
   }
 
   console.log(
-    `Processed ${processedCount} unique, skipped ${skippedCount} duplicates from ${transactions.length} total`
+    `Processed ${processedCount} unique, skipped ${skippedCount} duplicates from ${transactions.length} total`,
   );
   res.send(
-    `Processed ${processedCount} unique transaction(s), skipped ${skippedCount} duplicates`
+    `Processed ${processedCount} unique transaction(s), skipped ${skippedCount} duplicates`,
   );
 });
 
 app.get("/rugcheck", async (req, res) => {
-    const { address } = req.query;
-    const data = await rugCheck(address);
-    console.log(data);
-    res.send(data);
+  const { address } = req.query;
+  const data = await rugCheck(address);
+  console.log(data);
+  res.send(data);
 });
 
 app.listen(PORT, () => {
@@ -176,12 +177,22 @@ app.listen(PORT, () => {
 });
 
 app.post("/api/wallets", async (req, res) => {
-    const { telegramUser } = req.body;
-    console.log('incoming')
-    console.log('telegram user:', telegramUser);
+  const { telegramUser } = req.body;
+  console.log("incoming");
+  console.log("telegram user:", telegramUser);
 
-    const userwallets = await db`SELECT * FROM tracked_wallets WHERE user_chat_id = ${telegramUser.id}`;
+  if (!telegramUser || !telegramUser.id) {
+    return res.status(400).json({ error: "User not found or invalid" });
+  }
+
+  try {
+    const userwallets =
+      await db`SELECT * FROM tracked_wallets WHERE user_chat_id = ${telegramUser.id}`;
     res.json(userwallets);
+  } catch (error) {
+    console.error("Error fetching wallets:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 // Export the Express app as the default export
