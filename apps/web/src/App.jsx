@@ -58,7 +58,56 @@ function App() {
   }, [telegramUser]);
 
   const [wallets, setWallets] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    // In development loop, we might not be in Telegram, so use a mock user if needed or handle null
+    const isDev = false;
+    const userToFetch =
+      telegramUser ||
+      (isDev ? { id: 844954314, first_name: "TestUser" } : null);
+
+    if (!userToFetch) {
+      console.log("No Telegram user detected");
+      setIsLoading(false);
+      return;
+    }
+
+    // Connect to local backend in development, deployed in production
+    // You might need to change the port if your backend runs on a different one
+    const API_URL = isDev
+      ? "http://localhost:5000"
+      : "https://whalesight.onrender.com";
+
+    console.log(
+      `Fetching wallets from ${API_URL}/api/wallets for user:`,
+      userToFetch,
+    );
+
+    fetch(`${API_URL}/api/wallets`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ telegramUser: userToFetch }),
+    })
+      .then((response) => {
+        if (!response.ok)
+          throw new Error(`HTTP error! status: ${response.status}`);
+        return response.json();
+      })
+      .then((data) => {
+        console.log("Wallets fetched:", data);
+        setWallets(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching wallets:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, [telegramUser]);
 
   const handleAddWallet = (newWallet) => {
     setWallets([...wallets, newWallet]);
@@ -73,7 +122,11 @@ function App() {
       <main className="flex-1 w-full max-w-md mx-auto p-4 flex flex-col relative h-full">
         <InsightCard count={wallets.length} />
 
-        <WalletList wallets={wallets} onDelete={handleDeleteWallet} />
+        <WalletList
+          wallets={wallets}
+          isLoading={isLoading}
+          onDelete={handleDeleteWallet}
+        />
 
         {/* Floating Action Button */}
         <motion.div

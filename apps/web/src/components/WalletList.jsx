@@ -1,6 +1,25 @@
-import { Trash2, ExternalLink } from 'lucide-react';
+import { Trash2, ExternalLink } from "lucide-react";
 
-const WalletList = ({ wallets, onDelete }) => {
+const WalletList = ({ wallets, isLoading, onDelete }) => {
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-3 pb-24">
+        <h3 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2 animate-pulse bg-white/10 h-4 w-32 rounded"></h3>
+        {[1, 2, 3].map((i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between p-4 bg-[#1a1a1a] border border-white/5 rounded-xl"
+          >
+            <div className="flex flex-col gap-2 w-full">
+              <div className="h-4 bg-white/10 rounded w-1/3 animate-pulse" />
+              <div className="h-3 bg-white/5 rounded w-2/3 animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (wallets.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
@@ -14,9 +33,11 @@ const WalletList = ({ wallets, onDelete }) => {
 
   return (
     <div className="flex flex-col gap-3 pb-24">
-      <h3 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">Your Watchlist</h3>
+      <h3 className="text-sm font-semibold text-white/50 uppercase tracking-wider mb-2">
+        Your Watchlist
+      </h3>
       {wallets.map((wallet, index) => (
-        <div 
+        <div
           key={index}
           className="group flex items-center justify-between p-4 bg-[#1a1a1a] border border-white/5 rounded-xl hover:bg-[#252525] transition-colors"
         >
@@ -28,18 +49,18 @@ const WalletList = ({ wallets, onDelete }) => {
               {wallet.wallet_address}
             </span>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <button className="p-2 text-white/30 hover:text-white transition-colors">
               <ExternalLink size={18} />
             </button>
             {onDelete && (
-               <button 
-               onClick={() => onDelete(wallet.wallet_address)}
-               className="p-2 text-white/30 hover:text-red-400 transition-colors"
-             >
-               <Trash2 size={18} />
-             </button>
+              <button
+                onClick={() => onDelete(wallet.wallet_address)}
+                className="p-2 text-white/30 hover:text-red-400 transition-colors"
+              >
+                <Trash2 size={18} />
+              </button>
             )}
           </div>
         </div>
