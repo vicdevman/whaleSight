@@ -62,13 +62,13 @@ export default async function sendTransaction(bot, data) {
 
   const rugcheckSummary =
     `*Token:* ${tokenDisplay}\n` +
+    `*Addrss:* ${tokenMint}\n` +
     `*Risk:* ${riskLevel} (${score})\n` +
     `*Mint:* ${mintStatus} | *Freeze:* ${freezeStatus} | *LP:* ${lpStatus} ${lpPct.toFixed(1)}%\n` +
     `*Liq:* ${liquidity} | *MCap:* ${mcap}`;
 
   const messageText = (label) =>
-    `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n\n` +
-    `*Address:* \`${address}\`\n` +
+    `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n` +
     `*Value:* ${solAmount.toFixed(4)} SOL (${tokenAmount.toLocaleString()} ${tokenSymbol})\n\n` +
     `${rugcheckSummary}\n\n` +
     `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
