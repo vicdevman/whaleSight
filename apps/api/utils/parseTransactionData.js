@@ -29,20 +29,14 @@ function getTrackedWallet(tx, trackedWallets) {
 function calculateSolFlow(tx, wallet) {
   let sol = 0;
 
-  // 1. Sum native SOL transfers
-  for (const transfer of tx.nativeTransfers || []) {
-    if (transfer.fromUserAccount === wallet) {
-      sol -= transfer.amount / 1e9;
+  // Use accountData which contains the actual native balance changes
+  // This is the most accurate method and matches what Solscan shows
+  if (tx.accountData && Array.isArray(tx.accountData)) {
+    for (const account of tx.accountData) {
+      if (account.account === wallet && account.nativeBalanceChange) {
+        sol += account.nativeBalanceChange / 1e9;
+      }
     }
-
-    if (transfer.toUserAccount === wallet) {
-      sol += transfer.amount / 1e9;
-    }
-  }
-
-  // 2. Subtract transaction fee once
-  if (tx.feePayer === wallet && tx.fee) {
-    sol -= tx.fee / 1e9;
   }
 
   return sol;
