@@ -62,7 +62,7 @@ export default async function sendTransaction(bot, data) {
 
   const rugcheckSummary =
     `*Token:* ${tokenDisplay}\n` +
-    `*Addrss:* ${tokenMint}\n` +
+    `${tokenMint}\n` +
     `*Risk:* ${riskLevel} (${score})\n` +
     `*Mint:* ${mintStatus} | *Freeze:* ${freezeStatus} | *LP:* ${lpStatus} ${lpPct.toFixed(1)}%\n` +
     `*Liq:* ${liquidity} | *MCap:* ${mcap}`;
