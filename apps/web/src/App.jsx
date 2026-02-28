@@ -21,7 +21,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const isDev = true;
+  const isDev = false;
   // In development loop, we might not be in Telegram, so use a mock user if needed or handle null
   const userToFetch =
     telegramUser || (isDev ? { id: 844954314, first_name: "TestUser" } : null);
