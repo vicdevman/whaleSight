@@ -211,12 +211,35 @@ app.post(`/api/addwallet`, async (req, res) => {
 
     await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${telegramUser.id}, ${address}, ${"solana"}, ${label})`;
 
-    await bot.sendMessage(
-      telegramUser.id,
-      `Wallet tracked successfully! use /list to see all tracked wallets and /remove to remove a tracked wallet. enjoy!`,
-    );
+    res.status(200).json({ msg: "wallet added successfully!" });
 
-    res.status(201).json({ msg: "wallet added successfully!" });
+    // Background tasks
+    bot
+      .sendMessage(
+        telegramUser.id,
+        `Wallet tracked successfully! use /list to see all tracked wallets and /remove to remove a tracked wallet. enjoy!`,
+      )
+      .catch(console.error);
+
+    // Update webhook addresses in background
+    (async () => {
+      try {
+        const remainingWallets =
+          await db`SELECT DISTINCT wallet_address FROM tracked_wallets`;
+        const walletAddresses = remainingWallets.map(
+          (row) => row.wallet_address,
+        );
+        console.log("Remaining wallets for webhook update:", walletAddresses);
+
+        if (walletAddresses.length > 0) {
+          await updateWebhookAddresses(walletAddresses);
+        } else {
+          console.log("No wallets remaining, webhook update skipped");
+        }
+      } catch (webhookErr) {
+        console.error("Error updating webhooks in background:", webhookErr);
+      }
+    })();
   } catch (err) {
     console.log(err);
     res.status(400).json({ msg: err.message });
@@ -231,7 +254,27 @@ app.delete("/api/deletewallet/:id", async (req, res) => {
         WHERE id = ${id}
       `;
 
-      res.status(200).json({msg: "Wallet deleted Successfully!"})
+    res.status(200).json({ msg: "Wallet deleted Successfully!" });
+
+    // Update webhook background
+    (async () => {
+      try {
+        const remainingWallets =
+          await db`SELECT DISTINCT wallet_address FROM tracked_wallets`;
+        const walletAddresses = remainingWallets.map(
+          (row) => row.wallet_address,
+        );
+        console.log("Remaining wallets for webhook update:", walletAddresses);
+
+        if (walletAddresses.length > 0) {
+          await updateWebhookAddresses(walletAddresses);
+        } else {
+          console.log("No wallets remaining, webhook update skipped");
+        }
+      } catch (webhookErr) {
+        console.error("Error updating webhooks in background:", webhookErr);
+      }
+    })();
   } catch (err) {
     console.log(err);
     res.status(400).json({ msg: err.message });

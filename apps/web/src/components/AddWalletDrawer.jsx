@@ -1,19 +1,25 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight } from 'lucide-react';
-import { useState } from 'react';
+import { motion, AnimatePresence } from "framer-motion";
+import { X, ArrowRight } from "lucide-react";
+import { useState } from "react";
 
 const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
-  const [address, setAddress] = useState('');
-  const [label, setLabel] = useState('');
+  const [address, setAddress] = useState("");
+  const [label, setLabel] = useState("");
 
-  const handleSubmit = (e) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!address) return;
-    
-    onAdd({ address, label });
-    setAddress('');
-    setLabel('');
-    onClose();
+
+    setIsSubmitting(true);
+    const success = await onAdd({ address, label });
+    setIsSubmitting(false);
+
+    if (success) {
+      setAddress("");
+      setLabel("");
+    }
   };
 
   return (
@@ -28,20 +34,20 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
             onClick={onClose}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40  "
           />
-          
+
           {/* Drawer */}
           <motion.div
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
+            exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto"
           >
             {/* <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-8" /> */}
-            
+
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-semibold text-white">New Wallet</h2>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-3 bg-white/5 rounded-full text-white/60 hover:text-white cursor-pointer  "
               >
@@ -62,7 +68,9 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-white/60 ml-1">Wallet Address</label>
+                <label className="text-sm text-white/60 ml-1">
+                  Wallet Address
+                </label>
                 <input
                   type="text"
                   value={address}
@@ -74,11 +82,20 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
 
               <button
                 type="submit"
-                disabled={!address || !label}
+                disabled={!address || !label || isSubmitting}
                 className="mt-4 w-full bg-white text-black font-semibold py-4 rounded-xl flex items-center justify-center gap-2 hover:bg-gray-200 active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Start Tracking
-                <ArrowRight size={20} />
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                    Tracking...
+                  </span>
+                ) : (
+                  <>
+                    Start Tracking
+                    <ArrowRight size={20} />
+                  </>
+                )}
               </button>
             </form>
           </motion.div>

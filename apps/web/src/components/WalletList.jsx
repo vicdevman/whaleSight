@@ -1,6 +1,10 @@
-import { Trash2, ExternalLink } from "lucide-react";
+import { Trash2, ExternalLink, Copy } from "lucide-react";
+import { toast } from "sonner";
+import { useState } from "react";
+import DeleteWalletDrawer from "./DeleteWalletDrawer";
 
 const WalletList = ({ wallets, isLoading, onDelete }) => {
+  const [walletToDelete, setWalletToDelete] = useState(null);
   if (isLoading) {
     return (
       <div className="flex flex-col gap-3 pb-24">
@@ -45,18 +49,33 @@ const WalletList = ({ wallets, isLoading, onDelete }) => {
             <span className="text-white font-medium text-sm truncate max-w-[200px] mb-1">
               {wallet.label || `Wallet ${index + 1}`}
             </span>
-            <span className="text-white/40 text-xs truncate max-w-[200px] font-mono">
-              {wallet.wallet_address}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-white/40 text-xs truncate max-w-[200px] font-mono">
+                {wallet.wallet_address}
+              </span>
+              {/* <button
+                onClick={() => {
+                  navigator.clipboard.writeText(wallet.wallet_address);
+                  toast.success("Address copied to clipboard!");
+                }}
+                className="text-white/40 hover:text-white transition-colors cursor-pointer select-none"
+                title="Copy Address"
+              >
+                📋
+              </button> */}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {/* <button className="p-4 text-white/30 hover:text-white transition-colors cursor-pointer">
-              <ExternalLink size={20} />
-            </button> */}
+            <button onClick={() => {
+                  navigator.clipboard.writeText(wallet.wallet_address);
+                  toast.success("Address copied to clipboard!");
+                }} className="p-2 text-white/30 hover:text-white transition-colors cursor-pointer">
+              <Copy size={20} />
+            </button>
             {onDelete && (
               <button
-                onClick={() => onDelete(wallet.id)}
+                onClick={() => setWalletToDelete(wallet)}
                 className="p-4 text-white/30 hover:text-red-400 transition-colors cursor-pointer"
               >
                 <Trash2 size={20} />
@@ -65,6 +84,13 @@ const WalletList = ({ wallets, isLoading, onDelete }) => {
           </div>
         </div>
       ))}
+
+      <DeleteWalletDrawer
+        isOpen={!!walletToDelete}
+        onClose={() => setWalletToDelete(null)}
+        onDelete={onDelete}
+        wallet={walletToDelete}
+      />
     </div>
   );
 };

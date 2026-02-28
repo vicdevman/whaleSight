@@ -90,13 +90,18 @@ function App() {
 
       console.log(result);
       if (res.ok) {
-        toast.success(result.msg);
+        toast.success("Wallet tracked successfully!");
+        fetchTrackedWallets();
+        setIsDrawerOpen(false);
+        return true;
       }
 
-      toast.error(result.msg);
-      fetchTrackedWallets();
+      toast.error(result.msg || "Wallet may already exist!");
+      return false;
     } catch (err) {
       console.log(err);
+      toast.error("Failed to add wallet");
+      return false;
     }
   };
 
@@ -113,7 +118,7 @@ function App() {
 
       if (res.ok) {
         toast.success("wallet deleted successfully!");
-        fetchTrackedWallets()
+        fetchTrackedWallets();
       }
     } catch (err) {
       console.log(err);
@@ -122,7 +127,7 @@ function App() {
 
   return (
     <div className="app bg-[#0b0b0b] min-h-dvh">
-      <Toaster richColors position="top-center"/>
+      <Toaster richColors position="top-center" />
       <main className="flex-1 w-full max-w-md mx-auto p-4 flex flex-col h-full">
         <InsightCard count={wallets.length} isLoading={isLoading} />
 
