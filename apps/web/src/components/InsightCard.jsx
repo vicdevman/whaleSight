@@ -1,9 +1,9 @@
-const InsightCard = ({ count }) => {
+const InsightCard = ({ count, isLoading }) => {
   return (
     <div className="w-full relative overflow-hidden rounded-3xl mb-6 p-10 flex flex-col items-center justify-center border border-white/20 shadow-2xl transition-all duration-300 hover:shadow-primary/20" style={{ background: 'var(--primary-gradient)' }}>
       <div className="relative z-10 flex flex-col items-center text-center">
         <h2 className="text-5xl font-black text-white tracking-tighter mb-1 drop-shadow-xl">
-          {count.toLocaleString()}
+          {isLoading ? (<span>...</span>) : count.toLocaleString()}
         </h2>
         <p className="text-white/60 font-black text-[10px] uppercase tracking-[0.3em] leading-none">
           Wallets Tracked

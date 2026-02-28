@@ -10,6 +10,7 @@ import parseHeliusSwap from "./utils/parseTransactionData.js";
 import { testParser } from "./utils/parseTransactionData.js";
 import sendTransaction from "./handlers/sendTransaction.js";
 import rugCheck from "./services/rugcheck.js";
+import isValidSolanaAddress from "./utils/isValidSolanaAddress.js";
 
 dotenv.config();
 const app = express();
@@ -192,6 +193,48 @@ app.post("/api/wallets", async (req, res) => {
   } catch (error) {
     console.error("Error fetching wallets:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post(`/api/addwallet`, async (req, res) => {
+  const { telegramUser, address, label } = req.body;
+  try {
+    if (!telegramUser) {
+      throw new Error("Invalid telegram user");
+    }
+
+    const isValid = await isValidSolanaAddress(address);
+    // console.log(isValid);
+    if (!isValid) {
+      throw new Error("Invalid Solana addresss");
+    }
+
+    await db`INSERT INTO tracked_wallets(user_chat_id, wallet_address, chain, label) VALUES (${telegramUser.id}, ${address}, ${"solana"}, ${label})`;
+
+    await bot.sendMessage(
+      telegramUser.id,
+      `Wallet tracked successfully! use /list to see all tracked wallets and /remove to remove a tracked wallet. enjoy!`,
+    );
+
+    res.status(201).json({ msg: "wallet added successfully!" });
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ msg: err.message });
+  }
+});
+
+app.delete("/api/deletewallet/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await db`
+        DELETE FROM tracked_wallets
+        WHERE id = ${id}
+      `;
+
+      res.status(200).json({msg: "Wallet deleted Successfully!"})
+  } catch (err) {
+    console.log(err);
+    res.status(400).json({ msg: err.message });
   }
 });
 

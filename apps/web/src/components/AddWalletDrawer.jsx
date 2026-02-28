@@ -26,7 +26,7 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40  "
           />
           
           {/* Drawer */}
@@ -35,7 +35,7 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto"
           >
             {/* <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-8" /> */}
             
@@ -43,7 +43,7 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
               <h2 className="text-2xl font-semibold text-white">New Wallet</h2>
               <button 
                 onClick={onClose}
-                className="p-3 bg-white/5 rounded-full text-white/60 hover:text-white"
+                className="p-3 bg-white/5 rounded-full text-white/60 hover:text-white cursor-pointer  "
               >
                 <X size={20} />
               </button>

@@ -39,7 +39,7 @@ const WalletList = ({ wallets, isLoading, onDelete }) => {
       {wallets.map((wallet, index) => (
         <div
           key={index}
-          className="group flex items-center justify-between p-4 bg-[#1a1a1a] border border-white/5 rounded-xl hover:bg-[#252525] transition-colors"
+          className="group flex items-center justify-between p-2 pl-4 bg-[#1a1a1a] border border-white/5 rounded-xl hover:bg-[#252525] transition-colors"
         >
           <div className="flex flex-col overflow-hidden">
             <span className="text-white font-medium text-sm truncate max-w-[200px] mb-1">
@@ -51,15 +51,15 @@ const WalletList = ({ wallets, isLoading, onDelete }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button className="p-2 text-white/30 hover:text-white transition-colors">
-              <ExternalLink size={18} />
-            </button>
+            {/* <button className="p-4 text-white/30 hover:text-white transition-colors cursor-pointer">
+              <ExternalLink size={20} />
+            </button> */}
             {onDelete && (
               <button
-                onClick={() => onDelete(wallet.wallet_address)}
-                className="p-2 text-white/30 hover:text-red-400 transition-colors"
+                onClick={() => onDelete(wallet.id)}
+                className="p-4 text-white/30 hover:text-red-400 transition-colors cursor-pointer"
               >
-                <Trash2 size={18} />
+                <Trash2 size={20} />
               </button>
             )}
           </div>
