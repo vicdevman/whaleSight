@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const BIRDEYE_API_KEY =
-  process.env.BIRDEYE_API_KEY || "8ce662ec09fe45d8b77a8a3c892b8b7f";
+  process.env.BIRDEYE_API_KEY || "";
 
 /**
  * Fetch wallet PnL summary from Birdeye
