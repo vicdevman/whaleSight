@@ -54,7 +54,6 @@ function App() {
         return response.json();
       })
       .then((data) => {
-        console.log("Wallets fetched:", data);
         setWallets(data);
       })
       .catch((error) => {
@@ -98,7 +97,6 @@ function App() {
 
       const result = await res.json();
 
-      console.log(result);
       if (res.ok) {
         toast.success("Wallet tracked successfully!");
         fetchTrackedWallets();

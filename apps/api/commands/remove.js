@@ -1,5 +1,6 @@
 import db from "../db/pool.js";
 import { updateWebhookAddresses } from "../services/helius.js";
+import { setState } from "../lib/conversationalState.js";
 
 export default function registerRemove(bot) {
   bot.onText(/\/remove(?:\s+(.+))?/, async (msg, match) => {
@@ -8,7 +9,17 @@ export default function registerRemove(bot) {
 
     // 1. No address provided
     if (!address) {
-      await bot.sendMessage(chatId, "Usage:\n/remove WALLET_ADDRESS");
+      await setState(chatId, { step: "AWAITING_REMOVE_ADDRESS" });
+      const buttons = {
+        inline_keyboard: [
+          [{ text: "Cancel", callback_data: "cancel_tracking" }],
+        ],
+      };
+      await bot.sendMessage(
+        chatId,
+        "Please send the wallet address you want to remove:",
+        { reply_markup: buttons },
+      );
       return;
     }
 
@@ -35,7 +46,7 @@ export default function registerRemove(bot) {
           if (!trackedWallets.length) {
             await bot.sendMessage(
               chatId,
-              "You are not tracking any wallets yet."
+              "You are not tracking any wallets yet.",
             );
             return;
           }
@@ -45,21 +56,21 @@ export default function registerRemove(bot) {
 🐳 *${w.label || "Unnamed Wallet"}*
 \`${w.wallet_address}\`
 /remove ${w.wallet_address}
-        `
+        `,
           );
 
           await bot.sendMessage(
             chatId,
             "Wallet not found.\n\nHere are your tracked wallets:\n" +
               wallets.join("\n"),
-            { parse_mode: "Markdown" }
+            { parse_mode: "Markdown" },
           );
         } catch (listError) {
           console.error("❌ Database error fetching wallet list:", listError);
           await bot.sendMessage(
             chatId,
             "🔄 Having trouble connecting. Please try again:\n/remove " +
-              address
+              address,
           );
         }
         return;
@@ -72,7 +83,10 @@ export default function registerRemove(bot) {
           AND wallet_address = ${address}
       `;
 
-      await bot.sendMessage(chatId, "Wallet removed successfully! use /list to see all tracked wallets");
+      await bot.sendMessage(
+        chatId,
+        "Wallet removed successfully! use /list to see all tracked wallets",
+      );
 
       // 5. Get all unique tracked wallets to update webhook
       const remainingWallets =
@@ -91,7 +105,7 @@ export default function registerRemove(bot) {
       await bot.sendMessage(
         chatId,
         "🔄 Having trouble connecting. Please try again:\n/remove " +
-          (address || "WALLET_ADDRESS")
+          (address || "WALLET_ADDRESS"),
       );
     }
   });

@@ -29,8 +29,6 @@ const WalletScanModal = ({
   onTrack,
   trackedWallets = [],
 }) => {
-  console.log("in wallet scanModal data:--------", data);
-
   const address = wallet?.wallet_address || data?.address;
   const isAlreadyTracked = trackedWallets.some(
     (w) => w.wallet_address?.toLowerCase() === address?.toLowerCase(),

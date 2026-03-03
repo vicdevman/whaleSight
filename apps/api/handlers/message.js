@@ -8,6 +8,7 @@ export default function registerMessageHandler(bot) {
 
   bot.on("message", async (msg) => {
     const chatId = msg.chat.id;
+    const firstName = msg.chat.first_name;
 
     const state = await getState(chatId);
     const buttons = {
@@ -111,8 +112,59 @@ export default function registerMessageHandler(bot) {
         };
         await bot.sendMessage(
           chatId,
-          `❌ Invalid Solana address, please send a valid Solana address or /cancel`,
+          `❌ Invalid Solana address, please send a valid Solana address`,
           { reply_markup: buttons },
+        );
+      }
+      return;
+    }
+
+    if (state && state.step == "AWAITING_REMOVE_ADDRESS") {
+      const address = msg.text.trim();
+      const isValid = await isValidSolanaAddress(address);
+
+      if (!isValid) {
+        await bot.sendMessage(
+          chatId,
+          `❌ Invalid Solana address, please send a valid Solana address`,
+          { reply_markup: buttons },
+        );
+        return;
+      }
+
+      try {
+        const [wallet] =
+          await db`SELECT 1 FROM tracked_wallets WHERE user_chat_id = ${chatId} AND wallet_address = ${address} LIMIT 1`;
+
+        if (!wallet) {
+          await bot.sendMessage(
+            chatId,
+            "❌ Address not found in your tracked list. Please send the correct address or /cancel",
+            { reply_markup: buttons },
+          );
+          return;
+        }
+
+        await db`DELETE FROM tracked_wallets WHERE user_chat_id = ${chatId} AND wallet_address = ${address}`;
+        await bot.sendMessage(chatId, "✅ Wallet removed successfully!");
+        await clearState(chatId);
+
+        const remainingWallets =
+          await db`SELECT DISTINCT wallet_address FROM tracked_wallets`;
+        const walletAddresses = remainingWallets.map(
+          (row) => row.wallet_address,
+        );
+        if (walletAddresses.length > 0) {
+          await import("../services/helius.js").then(
+            ({ updateWebhookAddresses }) =>
+              updateWebhookAddresses(walletAddresses),
+          );
+        }
+      } catch (error) {
+        console.error("❌ Database error during removal:", error);
+        await bot.sendMessage(
+          chatId,
+          "🔄 Error processing removal. Please try again.",
         );
       }
       return;
@@ -134,7 +186,7 @@ export default function registerMessageHandler(bot) {
 
     await bot.sendMessage(
       chatId,
-      `Hi, what would you like to do? \n\nUse /help to see what I can do.`,
+      `Hi ${firstName}, what would you like to do? \n\nUse /help to see what I can do.`,
     );
     console.log(msg);
   });
