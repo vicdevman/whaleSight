@@ -139,7 +139,7 @@ export default function registerMessageHandler(bot) {
         if (!wallet) {
           await bot.sendMessage(
             chatId,
-            "❌ Address not found in your tracked list. Please send the correct address or /cancel",
+            "❌ Address not found in your tracked list. Please send the correct address",
             { reply_markup: buttons },
           );
           return;
