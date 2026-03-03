@@ -2,7 +2,14 @@ import db from "../db/pool.js";
 import rugCheck from "../services/rugcheck.js";
 
 export default async function sendTransaction(bot, data) {
-  const { wallet: address, action, tokenAmount, solAmount, signature, tokenMint } = data;
+  const {
+    wallet: address,
+    action,
+    tokenAmount,
+    solAmount,
+    signature,
+    tokenMint,
+  } = data;
 
   // Fetch unique users tracking this wallet to avoid duplicate notifications
   const userResults = await db`
@@ -78,12 +85,15 @@ export default async function sendTransaction(bot, data) {
       inline_keyboard: [
         [
           { text: "Refresh", callback_data: `refresh_${tokenMint}` },
-            { text: "Solscan", url: `https://solscan.io/tx/${signature}` },
-          { text: "Dexscreener", url: `https://dexscreener.com/solana/${tokenMint}` },
-        ],
-        [
           { text: "Risks", callback_data: `risks_${tokenMint}` },
           { text: "Top Holders", callback_data: `holders_${tokenMint}` },
+        ],
+        [
+          { text: "Solscan", url: `https://solscan.io/tx/${signature}` },
+          {
+            text: "Dexscreener",
+            url: `https://dexscreener.com/solana/${tokenMint}`,
+          },
         ],
       ],
     },
@@ -92,7 +102,7 @@ export default async function sendTransaction(bot, data) {
   if (userResults.length == 1) {
     console.log(`Single user tracking wallet: ${address}`);
     console.log(`address: ------------------------------`, address);
-    console.log('rugcheck: ------------------------------', rugCheckData);
+    console.log("rugcheck: ------------------------------", rugCheckData);
 
     const user = userResults[0];
     try {
