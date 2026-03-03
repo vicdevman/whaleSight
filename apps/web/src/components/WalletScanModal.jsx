@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Activity, ArrowRight } from "lucide-react";
 
 const InfoItem = ({ label, value, isCurrency, isPositive }) => (
-  <div className="flex flex-col gap-1 p-3 bg-white/5 rounded-xl border border-white/5">
+  <div className="flex flex-col justify-between gap-1 p-3 bg-white/5 rounded-xl border border-white/5">
     <span className="text-white/40 text-xs font-medium uppercase tracking-wider">
       {label}
     </span>

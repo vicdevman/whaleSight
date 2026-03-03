@@ -87,7 +87,7 @@ const ManualScanModal = ({ isOpen, onClose, onScan }) => {
                   }}
                   placeholder="sol..."
                   disabled={isScanning}
-                  className="w-full bg-white/5 border border-white/5 rounded-2xl px-5 py-4 text-white placeholder:text-white/10 focus:outline-none focus:border-indigo-500/50 transition-all font-mono text-sm disabled:opacity-50"
+                  className="w-full bg-white/5 border border-white/5 rounded-xl mt-1 px-4 py-2.5 text-white placeholder:text-white/10 focus:outline-none focus:border-indigo-500/50 transition-all font-mono text-sm disabled:opacity-50"
                 />
 
                 {error && (
