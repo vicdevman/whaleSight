@@ -1,4 +1,4 @@
-import { Trash2, ExternalLink, Copy, Activity } from "lucide-react";
+import { Trash2, ExternalLink, Copy, Activity, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import DeleteWalletDrawer from "./DeleteWalletDrawer";
@@ -67,28 +67,29 @@ const WalletList = ({ wallets, isLoading, onDelete, onScan }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            {onScan && (
-              <button
-                onClick={() => onScan(wallet)}
-                className="p-2 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
-                title="Scan Wallet"
-              >
-                <Activity size={20} />
-              </button>
-            )}
             <button
               onClick={() => {
                 navigator.clipboard.writeText(wallet.wallet_address);
                 toast.success("Address copied to clipboard!");
               }}
-              className="p-2 text-white/30 hover:text-white transition-colors cursor-pointer"
+              className="p-3 text-white/30 hover:text-white transition-colors cursor-pointer"
             >
               <Copy size={20} />
             </button>
+            {onScan && (
+              <button
+                onClick={() => onScan(wallet)}
+                className="p-3 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
+                title="Scan Wallet"
+              >
+                <BarChart3 size={20} />
+              </button>
+            )}
+
             {onDelete && (
               <button
                 onClick={() => setWalletToDelete(wallet)}
-                className="p-4 text-white/30 hover:text-red-400 transition-colors cursor-pointer"
+                className="p-3 text-white/30 hover:text-red-400 transition-colors cursor-pointer"
               >
                 <Trash2 size={20} />
               </button>
