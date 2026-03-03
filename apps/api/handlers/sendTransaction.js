@@ -70,8 +70,7 @@ export default async function sendTransaction(bot, data) {
   const messageText = (label) =>
     `${actionEmoji} *${actionText} - ${label}* ${actionEmoji}\n` +
     `*Value:* ${solAmount.toFixed(4)} SOL (${tokenAmount.toLocaleString()} ${tokenSymbol})\n\n` +
-    `${rugcheckSummary}\n\n` +
-    `🔗 [View on Solscan](https://solscan.io/tx/${signature})`;
+    `${rugcheckSummary}\n\n`;
 
   const options = {
     parse_mode: "Markdown",
@@ -79,6 +78,7 @@ export default async function sendTransaction(bot, data) {
       inline_keyboard: [
         [
           { text: "Refresh", callback_data: `refresh_${tokenMint}` },
+            { text: "Solscan", url: `https://solscan.io/tx/${signature}` },
           { text: "Dexscreener", url: `https://dexscreener.com/solana/${tokenMint}` },
         ],
         [
