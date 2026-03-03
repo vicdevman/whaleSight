@@ -11,6 +11,7 @@ import { testParser } from "./utils/parseTransactionData.js";
 import sendTransaction from "./handlers/sendTransaction.js";
 import rugCheck from "./services/rugcheck.js";
 import isValidSolanaAddress from "./utils/isValidSolanaAddress.js";
+import axios from "axios";
 
 dotenv.config();
 const app = express();
@@ -173,10 +174,6 @@ app.get("/rugcheck", async (req, res) => {
   res.send(data);
 });
 
-app.listen(PORT, () => {
-  console.log(`Bot running on http://127.0.0.1:${PORT}`);
-});
-
 app.post("/api/wallets", async (req, res) => {
   const { telegramUser } = req.body;
   console.log("incoming");
@@ -279,6 +276,57 @@ app.delete("/api/deletewallet/:id", async (req, res) => {
     console.log(err);
     res.status(400).json({ msg: err.message });
   }
+});
+
+import { getWalletPnL } from "./services/birdeye.js";
+
+app.post("/api/checkaddress", async (req, res) => {
+  const { address } = req.body;
+  if (!address) {
+    return res.status(400).json({ error: "Address is required" });
+  }
+
+  try {
+    const isValid = await isValidSolanaAddress(address);
+    if (!isValid) {
+      return res.status(400).json({ error: "Invalid Solana address!" });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Validation failed" });
+  }
+});
+
+app.get("/api/scan", async (req, res) => {
+  const { address } = req.query;
+  if (!address) {
+    return res.status(400).json({ error: "Address is required" });
+  }
+
+  const isValid = await isValidSolanaAddress(address);
+
+  if (!isValid) {
+    return res.status(400).json({ error: "Invalid Solana address!" });
+  }
+
+  try {
+    const data = await getWalletPnL(address);
+    if (data) {
+      res.json({ data });
+      console.log("data------", JSON.stringify(data, null, 2));
+    } else {
+      res.status(400).json({ error: "Failed to fetch data from Birdeye" });
+    }
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Internal server error while fetching PnL data" });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(`Bot running on http://127.0.0.1:${PORT}`);
 });
 
 // Export the Express app as the default export

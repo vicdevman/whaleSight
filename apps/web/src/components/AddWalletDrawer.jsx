@@ -1,10 +1,16 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const AddWalletDrawer = ({ isOpen, onClose, onAdd }) => {
-  const [address, setAddress] = useState("");
+const AddWalletDrawer = ({ isOpen, onClose, onAdd, initialAddress = "" }) => {
+  const [address, setAddress] = useState(initialAddress);
   const [label, setLabel] = useState("");
+
+  useEffect(() => {
+    if (isOpen && initialAddress) {
+      setAddress(initialAddress);
+    }
+  }, [isOpen, initialAddress]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

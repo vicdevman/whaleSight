@@ -72,7 +72,7 @@ export default function registerRemove(bot) {
           AND wallet_address = ${address}
       `;
 
-      await bot.sendMessage(chatId, "Wallet removed successfully!");
+      await bot.sendMessage(chatId, "Wallet removed successfully! use /list to see all tracked wallets");
 
       // 5. Get all unique tracked wallets to update webhook
       const remainingWallets =

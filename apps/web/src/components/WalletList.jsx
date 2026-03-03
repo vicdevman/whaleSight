@@ -1,9 +1,9 @@
-import { Trash2, ExternalLink, Copy } from "lucide-react";
+import { Trash2, ExternalLink, Copy, Activity } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import DeleteWalletDrawer from "./DeleteWalletDrawer";
 
-const WalletList = ({ wallets, isLoading, onDelete }) => {
+const WalletList = ({ wallets, isLoading, onDelete, onScan }) => {
   const [walletToDelete, setWalletToDelete] = useState(null);
   if (isLoading) {
     return (
@@ -67,10 +67,22 @@ const WalletList = ({ wallets, isLoading, onDelete }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button onClick={() => {
-                  navigator.clipboard.writeText(wallet.wallet_address);
-                  toast.success("Address copied to clipboard!");
-                }} className="p-2 text-white/30 hover:text-white transition-colors cursor-pointer">
+            {onScan && (
+              <button
+                onClick={() => onScan(wallet)}
+                className="p-2 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
+                title="Scan Wallet"
+              >
+                <Activity size={20} />
+              </button>
+            )}
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(wallet.wallet_address);
+                toast.success("Address copied to clipboard!");
+              }}
+              className="p-2 text-white/30 hover:text-white transition-colors cursor-pointer"
+            >
               <Copy size={20} />
             </button>
             {onDelete && (

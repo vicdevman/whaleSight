@@ -1,5 +1,6 @@
 import { clearState } from "../lib/conversationalState.js";
 import rugCheck from "../services/rugcheck.js";
+import db from "../db/pool.js";
 
 export default function registerCallbackQuery(bot) {
   bot.on("callback_query", async (query) => {
@@ -11,7 +12,8 @@ export default function registerCallbackQuery(bot) {
     if (
       choice.startsWith("risks_") ||
       choice.startsWith("holders_") ||
-      choice.startsWith("refresh_")
+      choice.startsWith("refresh") ||
+      choice.startsWith("track_from_scan")
     ) {
       await bot.answerCallbackQuery(query.id, { text: "Fetching data..." });
 
@@ -87,6 +89,61 @@ export default function registerCallbackQuery(bot) {
           `*Price:* $${data.price?.toFixed(6) || 0}`;
 
         await bot.sendMessage(chatId, text, { parse_mode: "Markdown" });
+      } else if (choice.startsWith("refreshScan:")) {
+        const address = choice.split(":")[1];
+        await bot.answerCallbackQuery(query.id, { text: "Refreshing scan..." });
+        const { performScan } = await import("../utils/scanFormatter.js");
+        await performScan(bot, chatId, address);
+      } else if (choice.startsWith("track_from_scan:")) {
+        const address = choice.split(":")[1];
+        await bot.answerCallbackQuery(query.id);
+
+        const trackedWallets =
+          await db`SELECT * from tracked_wallets WHERE user_chat_id=${chatId}`;
+
+        const checkIfAddressExist = trackedWallets.find(
+          (wallet) => wallet.wallet_address == address,
+        );
+
+        if (checkIfAddressExist) {
+          await bot.sendMessage(
+            chatId,
+            `solana address already exist and is labelled as ${checkIfAddressExist.label}, please enter a different wallet address`,
+            {
+              reply_markup: {
+                inline_keyboard: [
+                  [{ text: "Cancel", callback_data: "cancel_tracking" }],
+                ],
+              },
+            },
+          );
+
+          return;
+        }
+
+        const { setState } = await import("../lib/conversationalState.js");
+
+        await bot.sendMessage(
+          chatId,
+          `Setting up tracking for <code>${address}</code>. Please send a label for this wallet.`,
+          {
+            parse_mode: "HTML",
+            reply_markup: {
+              inline_keyboard: [
+                [{ text: "Cancel", callback_data: "cancel_tracking" }],
+              ],
+            },
+          },
+        );
+        await setState(chatId, {
+          step: "AWAITING_LABEL",
+          address: address,
+        });
+      } else if (choice.startsWith("perform_scan:")) {
+        const address = choice.split(":")[1];
+        await bot.answerCallbackQuery(query.id);
+        const { performScan } = await import("../utils/scanFormatter.js");
+        await performScan(bot, chatId, address);
       }
       return;
     }
@@ -95,6 +152,7 @@ export default function registerCallbackQuery(bot) {
 
     switch (choice) {
       case "cancel_tracking":
+      case "cancel_scan":
         await bot.deleteMessage(chatId, messageId);
         await clearState(chatId);
         break;
