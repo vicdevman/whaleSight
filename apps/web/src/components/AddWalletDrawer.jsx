@@ -47,7 +47,7 @@ const AddWalletDrawer = ({ isOpen, onClose, onAdd, initialAddress = "" }) => {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto overflow-y-auto custom-scrollbar"
           >
             {/* <div className="w-12 h-1 bg-white/20 rounded-full mx-auto mb-8" /> */}
 

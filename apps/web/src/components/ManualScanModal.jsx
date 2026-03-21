@@ -53,7 +53,7 @@ const ManualScanModal = ({ isOpen, onClose, onScan }) => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-70 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto"
+            className="fixed bottom-0 left-0 right-0 z-70 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-10 shadow-2xl max-w-xl mx-auto overflow-y-auto custom-scrollbar"
           >
             <div className="flex justify-between items-center mb-6">
               <div className="flex items-center gap-3">

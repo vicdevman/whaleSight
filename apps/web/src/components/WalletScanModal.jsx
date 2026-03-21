@@ -51,7 +51,7 @@ const WalletScanModal = ({
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-1 pr-2 shadow-2xl max-w-xl mx-auto h-[85vh] overflow-y-auto flex flex-col"
+            className="fixed bottom-0 left-0 right-0 z-50 bg-[#141414] border-t border-white/10 rounded-t-[32px] p-6 pb-1 pr-2 shadow-2xl max-w-xl mx-auto h-[90vh] overflow-y-auto flex flex-col"
           >
             <div className="flex justify-between items-center mb-4 shrink-0 mr-2">
               <div className="flex items-center gap-3">

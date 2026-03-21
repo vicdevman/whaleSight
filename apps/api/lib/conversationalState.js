@@ -18,3 +18,4 @@ export async function getState(chatId) {
 export async function clearState(chatId) {
   await redis.del(`tg:state:${chatId}`);
 }
+   
