@@ -20,12 +20,19 @@ function App() {
     setCurrentPath(path);
   };
 
-  // Route matching
+  const isInTelegram = !!window.Telegram?.WebApp?.initData;
+
+  // If in Telegram, always show the dashboard (the app)
+  if (isInTelegram) {
+    return <Dashboard />;
+  }
+
+  // Route matching for browser environment
   if (currentPath === "/app") {
     return <Dashboard />;
   }
 
-  // Default to landing page for all other routes
+  // Default to landing page for all other routes in browser
   return <LandingPage onEnter={() => navigate("/app")} />;
 }
 

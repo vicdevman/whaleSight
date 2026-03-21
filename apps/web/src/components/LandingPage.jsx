@@ -7,6 +7,9 @@ import {
   Zap,
   Target,
   BookOpen,
+  Twitter,
+  Linkedin,
+  Globe,
 } from "lucide-react";
 import UserManual from "./UserManual";
 import { useState } from "react";
@@ -145,7 +148,58 @@ const LandingPage = ({ onEnter }) => {
           </div>
         </div>
 
-        {/* Call to Action Wrapper */}
+        {/* Builder Section */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          className="mt-6 flex flex-col items-center text-center pb1-0"
+        >
+          <div className="w-12 h-[1px] bg-white/10 mb-8" />
+          <p className="text-white/20 text-xs font-bold uppercase tracking-[0.3em] mb-4">
+            Developed By
+          </p>
+          <h3 className="text-2xl font-black text-white mb-1">
+            Victor Adeiza
+          </h3>
+          <p className="text-indigo-400/60 text-sm font-medium mb-6">
+            Fullstack Engineer
+          </p>
+          <div className="flex gap-4">
+            <a
+              href="https://x.com/vicdevman"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-white/40 hover:text-white group"
+            >
+              <Twitter
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+            </a>
+            <a
+              href="https://www.linkedin.com/in/vicdevman/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-white/40 hover:text-white group"
+            >
+              <Linkedin
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+            </a>
+            <a
+              href="https://www.vicdevman.dev/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-white/40 hover:text-white group"
+            >
+              <Globe
+                size={20}
+                className="group-hover:scale-110 transition-transform"
+              />
+            </a>
+          </div>
+        </motion.div>
         <div className="fixed bottom-0 left-0 right-0 p-4 z-50 bg-[#0b0b0b]/80 backdrop-blur-xl border-t border-white/5">
           {window.Telegram?.WebApp?.initData ? (
             <button
