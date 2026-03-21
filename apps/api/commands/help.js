@@ -8,7 +8,7 @@ export default function registerHelp(bot) {
           "Monitor a wallet and receive alerts when new transactions occur",
       },
       {
-        command: "scan [WALLET_ADDRESS]",
+        command: "scan WALLET_ADDRESS",
         description:
           "Analyze any wallet and get a full breakdown of its activity, token holdings, and PnL",
       },
