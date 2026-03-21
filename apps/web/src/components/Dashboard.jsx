@@ -32,7 +32,7 @@ const Dashboard = () => {
   const [prefillAddress, setPrefillAddress] = useState("");
   const [manualOpen, setManualOpen] = useState(false);
 
-  const isDev = true;
+  const isDev = false;
   const userToFetch =
     telegramUser || (isDev ? { id: 844954314, first_name: "TestUser" } : null);
 
